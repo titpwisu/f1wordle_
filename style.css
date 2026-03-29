@@ -80,10 +80,10 @@ button {
 
 .suggestion-item:hover { background: var(--f1-red); }
 
-/* --- SIATKA KAFELKÓW (ZMIENIONA NA 6 KOLUMN) --- */
+/* --- KAFELKI --- */
 .row {
     display: grid;
-    grid-template-columns: repeat(6, 1fr);
+    grid-template-columns: repeat(6, 1fr); /* 6 KATEGORII */
     gap: 4px;
     margin-bottom: 10px;
 }
@@ -102,11 +102,11 @@ button {
     transition: transform 0.3s;
 }
 
-/* --- TWOJE NOWE KOLORY --- */
-.correct { background-color: #2ecc71 !important; color: white !important; border-color: transparent !important; }
-.wrong { background-color: #34495e !important; color: white !important; border-color: transparent !important; }
-.lower-or-past { background-color: #f1c40f !important; color: black !important; border-color: transparent !important; }
-.higher { background-color: #9b59b6 !important; color: white !important; border-color: transparent !important; }
+/* --- KOLORY --- */
+.correct { background-color: #2ecc71 !important; color: white !important; border-color: transparent !important; } /* ZIELONY */
+.near { background-color: #f1c40f !important; color: black !important; border-color: transparent !important; }    /* ŻÓŁTY (mniej / były team) */
+.higher { background-color: #9b59b6 !important; color: white !important; border-color: transparent !important; }  /* FIOLETOWY (więcej) */
+.wrong { background-color: #34495e !important; color: white !important; border-color: transparent !important; }   /* SZARY (pudło) */
 
 .label { font-size: 8px; opacity: 0.7; margin-bottom: 2px; }
 .value { font-size: 12px; line-height: 1.1; text-align: center; }
