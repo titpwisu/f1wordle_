@@ -29,7 +29,7 @@ async function inicjujGre() {
         inicjujPodpowiedzi();
         inicjujPrzycisk();
         inicjujZamykanieModala();
-        inicjujZasady(); // Wywołujemy zasady tutaj
+        inicjujZasady(); // Wywołanie nowej funkcji zasad
     } catch (err) {
         console.error("Start error:", err);
     }
@@ -190,11 +190,7 @@ function compareNumbers(g, t) {
 function saveGameState(guess) {
     const today = new Date().toDateString();
     let history = JSON.parse(localStorage.getItem('f1-wordle-state')) || { date: today, guesses: [] };
-
-    if (history.date !== today) {
-        history = { date: today, guesses: [] };
-    }
-
+    if (history.date !== today) { history = { date: today, guesses: [] }; }
     history.guesses.push(guess.name);
     localStorage.setItem('f1-wordle-state', JSON.stringify(history));
 }
@@ -222,11 +218,10 @@ function loadGameState() {
     }
 }
 
-// 6. UI HELPERS
+// 6. UI HELPERS & MODALS
 function pokazWynik(czyWygrana) {
     const modal = document.getElementById('resultModal');
     if(!modal) return;
-
     document.getElementById('modalTitle').innerText = czyWygrana ? "CONGRATULATIONS!" : "GAME OVER...";
     const badge = document.getElementById('modalStatusBadge');
     badge.innerText = czyWygrana ? "WIN" : "LOSS";
@@ -257,11 +252,7 @@ function inicjujPrzycisk() {
 function inicjujZamykanieModala() {
     const modal = document.getElementById('resultModal');
     const closeBtn = document.getElementById('closeModalBtn');
-
-    if (closeBtn) {
-        closeBtn.onclick = () => modal.style.display = "none";
-    }
-
+    if (closeBtn) { closeBtn.onclick = () => modal.style.display = "none"; }
     window.addEventListener('click', (event) => {
         if (event.target == modal) modal.style.display = "none";
     });
@@ -273,21 +264,13 @@ function inicjujZasady() {
     const closeRulesBtn = document.getElementById('closeRulesBtn');
 
     if (infoBtn) {
-        infoBtn.onclick = () => {
-            rulesModal.style.display = "block";
-        };
+        infoBtn.onclick = () => { rulesModal.style.display = "block"; };
     }
-
     if (closeRulesBtn) {
-        closeRulesBtn.onclick = () => {
-            rulesModal.style.display = "none";
-        };
+        closeRulesBtn.onclick = () => { rulesModal.style.display = "none"; };
     }
-
     window.addEventListener('click', (event) => {
-        if (event.target == rulesModal) {
-            rulesModal.style.display = "none";
-        }
+        if (event.target == rulesModal) rulesModal.style.display = "none";
     });
 }
 
