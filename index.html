@@ -1,30 +1,30 @@
 <!DOCTYPE html>
-<html lang="pl">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <title>F1 Wordle</title>
     <link rel="icon" type="image/png" href="favicon.png">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
-    <link rel="stylesheet" href="style.css?v=7">
+    <link rel="stylesheet" href="style.css?v=8">
 </head>
 <body>
     <div class="game-container">
         <h1>🏎️ F1 Wordle</h1>
-        <p>Zgadnij dzisiejszego kierowcę!</p>
+        <p>Guess today's driver!</p>
 
         <div class="input-area">
-            <input type="text" id="driverInput" placeholder="Ładowanie danych..." autocomplete="off" disabled>
+            <input type="text" id="driverInput" placeholder="Loading data..." autocomplete="off" disabled>
             <div id="suggestions" class="suggestions-list"></div>
-            <button onclick="makeGuess()">STRZAŁ</button>
+            <button onclick="makeGuess()">GUESS</button>
         </div>
 
         <div class="board-header">
             <div class="header-row">
-                <div>KOD</div>
+                <div>CODE</div>
                 <div>NAT</div>
                 <div>TEAM</div>
                 <div>NUM</div>
-                <div>ROK</div>
+                <div>YEAR</div>
                 <div>WINS</div>
             </div>
         </div>
@@ -33,18 +33,18 @@
 
         <div id="resultModal" class="modal">
             <div class="modal-content">
-                <h2 id="modalTitle">WYNIK</h2>
+                <h2 id="modalTitle">RESULT</h2>
                 <div id="modalStatusBadge">STATUS</div>
-                <p id="modalMessage">Wiadomość</p>
+                <p id="modalMessage">Message</p>
                 <div id="targetDisplay"></div>
-                
-                <button id="closeModalBtn" style="margin-top: 20px; padding: 10px 30px;">ZAMKNIJ</button>
-                
-                <p style="font-size: 0.8rem; color: #666; margin-top: 20px;">Wróć jutro po nowego kierowcę!</p>
+
+                <button id="closeModalBtn" style="margin-top: 20px; padding: 10px 30px;">CLOSE</button>
+
+                <p style="font-size: 0.8rem; color: #666; margin-top: 20px;">Come back tomorrow for a new driver!</p>
             </div>
         </div>
 
     </div>
-    <script src="script.js?v=7"></script>
+    <script src="script.js?v=8"></script>
 </body>
 </html>
