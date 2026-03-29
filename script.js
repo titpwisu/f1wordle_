@@ -40,7 +40,7 @@ async function inicjujGre() {
 async function updateWinsFromAPI() {
     try {
         // Pobieramy dane z F1DB
-        const response = await fetch('https://raw.githubusercontent.com/f1db/f1db/main/dist/f1db-drivers.json');
+       const response = await fetch('https://raw.githubusercontent.com/f1db/f1db-data/main/data/drivers.json');
         const remoteDrivers = await response.json();
         console.log("F1DB Data loaded!");
 
