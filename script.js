@@ -28,12 +28,13 @@ async function inicjujGre() {
         aktualizujPlaceholder();
         inicjujPodpowiedzi();
         inicjujPrzycisk();
+        inicjujZamykanieModala(); // Wywołujemy tutaj, żeby mieć pewność, że wszystko gotowe
     } catch (err) {
         console.error("Błąd startu:", err);
     }
 }
 
-// 2. API WYGRANYCH
+// 2. API WYGRANYCH (Ergast)
 async function updateWinsFromAPI() {
     try {
         const response = await fetch('https://api.jolpi.ca/ergast/f1/driverstandings/1.json?limit=1000');
@@ -49,7 +50,7 @@ async function updateWinsFromAPI() {
     }
 }
 
-// 3. LOGIKA PODPOWIEDZI I ENTERA
+// 3. LOGIKA PODPOWIEDZI
 function inicjujPodpowiedzi() {
     const input = document.getElementById('driverInput');
     const suggBox = document.getElementById('suggestions');
@@ -120,9 +121,8 @@ function inicjujPrzycisk() {
 function makeGuess() {
     const input = document.getElementById('driverInput');
     const val = input.value.trim().toLowerCase();
-    
-    // Ulepszone szukanie: najpierw dokładne, potem zawierające
-    const guess = allDrivers.find(d => d.name.toLowerCase() === val) || 
+
+    const guess = allDrivers.find(d => d.name.toLowerCase() === val) ||
                   allDrivers.find(d => d.name.toLowerCase().includes(val));
 
     if (guessesCount >= MAX_GUESSES || !guess) {
@@ -160,7 +160,7 @@ function renderRow(guess) {
     ];
 
     const vals = [guess.code, guess.nationality, guess.team, guess.number, guess.debut, guess.wins];
-    
+
     vals.forEach((v, i) => {
         const t = document.createElement('div');
         t.className = `tile ${st[i]}`;
@@ -192,7 +192,7 @@ function compareNumbers(g, t) {
 function pokazWynik(czyWygrana) {
     const modal = document.getElementById('resultModal');
     if(!modal) return;
-    
+
     document.getElementById('modalTitle').innerText = czyWygrana ? "GRATULACJE!" : "KONIEC GRY...";
     const badge = document.getElementById('modalStatusBadge');
     badge.innerText = czyWygrana ? "WYGRANA" : "PRZEGRANA";
@@ -215,13 +215,24 @@ function aktualizujPlaceholder() {
     if(input) input.placeholder = `Próba ${guessesCount + 1}/${MAX_GUESSES}`;
 }
 
+// 5. OBSŁUGA MODALA
+function inicjujZamykanieModala() {
+    const modal = document.getElementById('resultModal');
+    const closeBtn = document.getElementById('closeModalBtn');
+
+    if (closeBtn) {
+        closeBtn.onclick = function() {
+            modal.style.display = "none";
+        };
+    }
+
+    // Zamykanie po kliknięciu w tło (jeden listener wystarczy)
+    window.addEventListener('click', (event) => {
+        if (event.target == modal) {
+            modal.style.display = "none";
+        }
+    });
+}
+
 // URUCHOMIENIE
 inicjujGre();
-
-// Obsługa zamykania modala
-window.onclick = function(event) {
-    const modal = document.getElementById('resultModal');
-    if (event.target == modal) {
-        modal.style.display = "none";
-    }
-}
