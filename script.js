@@ -23,7 +23,7 @@ async function inicjujGre() {
         aktualizujPlaceholder();
         inicjujPodpowiedzi();
         inicjujPrzycisk();
-        
+
         console.log("Gra gotowa! Kierowca dnia: " + targetDriver.name);
     } catch (err) {
         console.error("Błąd podczas startu gry:", err);
@@ -36,10 +36,10 @@ async function updateWinsFromAPI() {
         // Używamy stabilniejszego endpointu Standings dla wygranych w karierze
         const response = await fetch('https://ergast.com/api/f1/driverStandings/1.json?limit=1000');
         const data = await response.json();
-        
+
         // Sprawdzamy czy dane istnieją
         if (!data.MRData.StandingsTable.StandingsLists[0]) return;
-        
+
         const standings = data.MRData.StandingsTable.StandingsLists[0].DriverStandings;
 
         allDrivers.forEach(driver => {
@@ -203,7 +203,8 @@ function renderRow(guess) {
     row.appendChild(createTile(guess.debut, debStatus, 0.4));
     row.appendChild(createTile(guess.wins, winsStatus, 0.5));
 
-    board.prepend(row);
+    board.appendChild(row);
+
 }
 
 function compareNumbers(guessVal, targetVal) {
