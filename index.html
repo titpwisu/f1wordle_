@@ -5,33 +5,33 @@
     <title>F1 Wordle</title>
     <link rel="icon" type="image/png" href="favicon.png">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
-    <link rel="stylesheet" href="style.css?v=8">
+    <link rel="stylesheet" href="style.css?v=9">
 </head>
 <body>
     <div class="game-container">
-        <div class="top-bar">
-    <img src="info.png" id="infoBtn" alt="How to play" class="info-icon">
-</div>
+        <div id="rulesModal" class="modal">
+            <div class="modal-content">
+                <h2>HOW TO PLAY</h2>
+                <p>Guess the F1 Driver in 6 tries.</p>
+                <ul class="rules-list">
+                    <li><span style="color: var(--correct)">🟩 Green</span>: Perfect match!</li>
+                    <li><span style="color: var(--near)">🟨 Yellow</span>: Played for this team in the past.</li>
+                    <li><span style="color: var(--higher)">🟪 Purple</span>: Target value is <b>lower</b> (↓).</li>
+                    <li><span style="color: var(--near)">🟨 Yellow (Arrows)</span>: Target value is <b>higher</b> (↑).</li>
+                    <li><span style="color: var(--wrong)">⬛ Grey</span>: No match.</li>
+                </ul>
+                <button id="closeRulesBtn" style="margin-top: 20px;">GOT IT!</button>
+            </div>
+        </div>
 
-<div id="rulesModal" class="modal">
-    <div class="modal-content">
-        <h2>HOW TO PLAY</h2>
-        <p>Guess the F1 Driver in 6 tries.</p>
-        <ul style="text-align: left; font-size: 0.9rem; line-height: 1.6;">
-            <li><span style="color: var(--correct)">🟩 Green</span>: Perfect match!</li>
-            <li><span style="color: var(--near)">🟨 Yellow</span>: Driver played for this team in the past.</li>
-            <li><span style="color: var(--higher)">🟪 Purple</span>: Target value is <b>lower</b> (↓).</li>
-            <li><span style="color: var(--near)">🟨 Yellow (Arrows)</span>: Target value is <b>higher</b> (↑).</li>
-            <li><span style="color: var(--wrong)">⬛ Grey</span>: No match.</li>
-        </ul>
-        <button id="closeRulesBtn" style="margin-top: 20px;">GOT IT!</button>
-    </div>
-</div>
-        <h1>🏎️ F1 Wordle</h1>
+        <h1>
+            <img src="info.png" id="infoBtn" alt="Info" class="info-icon">
+            🏎️ F1 Wordle
+        </h1>
         <p>Guess today's driver!</p>
 
         <div class="input-area">
-            <input type="text" id="driverInput" placeholder="Loading data..." autocomplete="off" disabled>
+            <input type="text" id="driverInput" placeholder="Loading..." autocomplete="off" disabled>
             <div id="suggestions" class="suggestions-list"></div>
             <button onclick="makeGuess()">GUESS</button>
         </div>
@@ -53,16 +53,13 @@
             <div class="modal-content">
                 <h2 id="modalTitle">RESULT</h2>
                 <div id="modalStatusBadge">STATUS</div>
-                <p id="modalMessage">Message</p>
+                <p id="modalMessage"></p>
                 <div id="targetDisplay"></div>
-
                 <button id="closeModalBtn" style="margin-top: 20px; padding: 10px 30px;">CLOSE</button>
-
-                <p style="font-size: 0.8rem; color: #666; margin-top: 20px;">Come back tomorrow for a new driver!</p>
+                <p style="font-size: 0.8rem; color: #666; margin-top: 20px;">New driver every day!</p>
             </div>
         </div>
-
     </div>
-    <script src="script.js?v=8"></script>
+    <script src="script.js?v=9"></script>
 </body>
 </html>
