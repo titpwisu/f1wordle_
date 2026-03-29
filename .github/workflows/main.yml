@@ -1,0 +1,49 @@
+name: Update F1 Stats
+on:
+  schedule:
+    - cron: '0 0 * * 1' # Co poniedziałek o północy
+  workflow_dispatch: # Przycisk do ręcznego odpalania
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write # Ważne: pozwala botowi zapisywać zmiany w pliku
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Run Update Script
+        run: |
+          python - <<EOF
+          import requests
+          import json
+
+          url = "https://api.jolpica.com/ergast/f1/current/driverstandings.json"
+          try:
+              r = requests.get(url, timeout=15)
+              data = r.json()['MRData']['StandingsTable']['StandingsLists'][0]['DriverStandings']
+              
+              with open('kierowcy.json', 'r', encoding='utf-8') as f:
+                  local_drivers = json.load(f)
+
+              for item in data:
+                  name = f"{item['Driver']['givenName']} {item['Driver']['familyName']}"
+                  for d in local_drivers:
+                      if d['name'] == name:
+                          d['team'] = item['Constructors'][0]['name']
+                          d['wins'] = int(item['wins'])
+              
+              with open('kierowcy.json', 'w', encoding='utf-8') as f:
+                  json.dump(local_drivers, f, indent=4, ensure_ascii=False)
+              print("Sukces!")
+          except Exception as e:
+              print(f"Błąd: {e}")
+          EOF
+
+      - name: Commit and Push
+        run: |
+          git config --global user.name 'F1-Bot'
+          git config --global user.email 'bot@f1wordle.com'
+          git add kierowcy.json
+          git commit -m "Auto-update statystyk" || exit 0
+          git push
