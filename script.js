@@ -4,14 +4,16 @@ let guessesCount = 0;
 const MAX_GUESSES = 6;
 let currentFocus = -1;
 
-// 1. START GAME
+// 1. INICJACJA GRY
 async function inicjujGre() {
     try {
-        console.log("Loading data...");
+        console.log("Loading local data...");
+        // Pobieramy Twój plik JSON
         const res = await fetch('kierowcy.json?v=' + new Date().getTime());
         allDrivers = await res.json();
 
-        // 2. Automated Update from F1DB
+        // 2. AUTOMATYCZNA AKTUALIZACJA Z F1DB
+        // Ta funkcja nadpisze statystyki w pamięci, jeśli w sieci są nowsze dane
         await updateWinsFromAPI();
 
         const today = new Date();
@@ -26,7 +28,7 @@ async function inicjujGre() {
 
         console.log("Game ready! Target: " + targetDriver.name);
 
-        loadGameState(); 
+        loadGameState(); // Wczytuje postęp z dzisiaj (Local Storage)
         inicjujPodpowiedzi();
         inicjujPrzycisk();
         inicjujZamykanieModala();
@@ -36,29 +38,33 @@ async function inicjujGre() {
     }
 }
 
-// 2. AUTOMATED WINS UPDATE (F1DB)
+// 2. FUNKCJA AUTOMATYZACJI (F1DB)
 async function updateWinsFromAPI() {
     try {
-        // Fetching raw JSON from F1DB repository
+        // Pobieramy surowe dane z repozytorium F1DB
         const response = await fetch('https://raw.githubusercontent.com/f1db/f1db/main/dist/f1db-drivers.json');
         const remoteDrivers = await response.json();
+        console.log("F1DB Data loaded successfully!");
 
         allDrivers.forEach(localDriver => {
+            // Szukamy kierowcy po ID (np. "antonelli")
             const remoteData = remoteDrivers.find(d => d.id === localDriver.id);
             if (remoteData && remoteData.stats) {
                 const apiWins = parseInt(remoteData.stats.wins);
+                
+                // Jeśli w bazie online jest więcej wygranych niż w Twoim pliku
                 if (apiWins > localDriver.wins) {
-                    console.log(`Auto-update: ${localDriver.name} wins ${localDriver.wins} -> ${apiWins}`);
+                    console.log(`🚀 AUTO-UPDATE: ${localDriver.name} wins ${localDriver.wins} -> ${apiWins}`);
                     localDriver.wins = apiWins;
                 }
             }
         });
     } catch (e) {
-        console.warn("Automated update failed. Using local fallback data.");
+        console.error("❌ Automated update FAILED:", e);
     }
 }
 
-// 3. SUGGESTIONS LOGIC
+// 3. LOGIKA PODPOWIEDZI (AUTOCOMPLETE)
 function inicjujPodpowiedzi() {
     const input = document.getElementById('driverInput');
     const suggBox = document.getElementById('suggestions');
@@ -120,7 +126,7 @@ function inicjujPodpowiedzi() {
     });
 }
 
-// 4. GAMEPLAY LOGIC
+// 4. LOGIKA ROZGRYWKI
 function makeGuess() {
     const input = document.getElementById('driverInput');
     const val = input.value.trim().toLowerCase();
@@ -186,7 +192,7 @@ function compareNumbers(g, t) {
     return gNum < tNum ? 'near' : 'higher';
 }
 
-// 5. STORAGE & STATE
+// 5. ZAPISYWANIE STANU (LOCAL STORAGE)
 function saveGameState(guess) {
     const today = new Date().toDateString();
     let history = JSON.parse(localStorage.getItem('f1-wordle-state')) || { date: today, guesses: [] };
@@ -217,7 +223,7 @@ function loadGameState() {
     }
 }
 
-// 6. UI HELPERS
+// 6. MODALE I UI
 function pokazWynik(czyWygrana) {
     const modal = document.getElementById('resultModal');
     if(!modal) return;
@@ -244,7 +250,7 @@ function aktualizujPlaceholder() {
 }
 
 function inicjujPrzycisk() {
-    const btn = document.querySelector('button');
+    const btn = document.querySelector('.input-area button');
     if (btn) btn.onclick = makeGuess;
 }
 
@@ -264,11 +270,11 @@ function inicjujZasady() {
 
     if (infoBtn) infoBtn.onclick = () => rulesModal.style.display = "block";
     if (closeRulesBtn) closeRulesBtn.onclick = () => rulesModal.style.display = "none";
-    
+
     window.addEventListener('click', (event) => {
         if (event.target == rulesModal) rulesModal.style.display = "none";
     });
 }
 
-// EXECUTION
+// URUCHOMIENIE
 inicjujGre();
