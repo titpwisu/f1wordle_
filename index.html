@@ -5,7 +5,7 @@
     <title>F1 Wordle</title>
     <link rel="icon" type="image/png" href="favicon.png">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
-    <link rel="stylesheet" href="style.css?v=5">
+    <link rel="stylesheet" href="style.css?v=6">
 </head>
 <body>
     <div class="game-container">
@@ -13,7 +13,7 @@
         <p>Zgadnij dzisiejszego kierowcę!</p>
 
         <div class="input-area">
-            <input type="text" id="driverInput" placeholder="Wpisz nazwisko..." autocomplete="off">
+            <input type="text" id="driverInput" placeholder="Ładowanie danych..." autocomplete="off" disabled>
             <div id="suggestions" class="suggestions-list"></div>
             <button onclick="makeGuess()">STRZAŁ</button>
         </div>
@@ -42,6 +42,7 @@
         </div>
 
     </div>
-    <script src="script.js?v=5"></script>
+
+    <script src="script.js?v=6"></script>
 </body>
 </html>
