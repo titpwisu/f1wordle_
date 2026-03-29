@@ -25,7 +25,7 @@ async function inicjujGre() {
 
         console.log("Game ready! Target: " + targetDriver.name);
 
-        aktualizujPlaceholder();
+        loadGameState(); // Wczytuje stan zapisany w przeglądarce
         inicjujPodpowiedzi();
         inicjujPrzycisk();
         inicjujZamykanieModala();
@@ -112,12 +112,7 @@ function inicjujPodpowiedzi() {
     });
 }
 
-// 4. GUESS & RESULT
-function inicjujPrzycisk() {
-    const btn = document.querySelector('button');
-    if (btn) btn.onclick = makeGuess;
-}
-
+// 4. GUESS LOGIC
 function makeGuess() {
     const input = document.getElementById('driverInput');
     const val = input.value.trim().toLowerCase();
@@ -132,6 +127,7 @@ function makeGuess() {
 
     guessesCount++;
     renderRow(guess);
+    saveGameState(guess); // Zapisz strzał
 
     if (guess.name === targetDriver.name) {
         setTimeout(() => { pokazWynik(true); zablokujGre("YOU WON!"); }, 1000);
@@ -189,6 +185,43 @@ function compareNumbers(g, t) {
     return gNum < tNum ? 'near' : 'higher';
 }
 
+// 5. STORAGE & STATE
+function saveGameState(guess) {
+    const today = new Date().toDateString();
+    let history = JSON.parse(localStorage.getItem('f1-wordle-state')) || { date: today, guesses: [] };
+    
+    if (history.date !== today) {
+        history = { date: today, guesses: [] };
+    }
+    
+    history.guesses.push(guess.name);
+    localStorage.setItem('f1-wordle-state', JSON.stringify(history));
+}
+
+function loadGameState() {
+    const today = new Date().toDateString();
+    const saved = JSON.parse(localStorage.getItem('f1-wordle-state'));
+
+    if (saved && saved.date === today) {
+        saved.guesses.forEach(name => {
+            const driver = allDrivers.find(d => d.name === name);
+            if (driver) {
+                guessesCount++;
+                renderRow(driver);
+                if (driver.name === targetDriver.name) {
+                    zablokujGre("YOU WON!");
+                    pokazWynik(true);
+                } else if (guessesCount >= MAX_GUESSES) {
+                    zablokujGre("GAME OVER");
+                    pokazWynik(false);
+                }
+            }
+        });
+        aktualizujPlaceholder();
+    }
+}
+
+// 6. UI HELPERS
 function pokazWynik(czyWygrana) {
     const modal = document.getElementById('resultModal');
     if(!modal) return;
@@ -197,7 +230,7 @@ function pokazWynik(czyWygrana) {
     const badge = document.getElementById('modalStatusBadge');
     badge.innerText = czyWygrana ? "WIN" : "LOSS";
     badge.className = czyWygrana ? "win-badge" : "lose-badge";
-    document.getElementById('modalMessage').innerText = czyWygrana ? `You guessed it in ${guessesCount} tries!` : "The engineers are not happy...";
+    document.getElementById('modalMessage').innerText = czyWygrana ? `You guessed it in ${guessesCount} tries!` : "Better luck tomorrow!";
     document.getElementById('targetDisplay').innerHTML = `Today's driver was:<br><span style="font-size: 1.5rem; color: #e10600;">${targetDriver.name}</span>`;
     modal.style.display = "block";
 }
@@ -215,21 +248,21 @@ function aktualizujPlaceholder() {
     if(input) input.placeholder = `Attempt ${guessesCount + 1}/${MAX_GUESSES}`;
 }
 
-// 5. MODAL HANDLING
+function inicjujPrzycisk() {
+    const btn = document.querySelector('button');
+    if (btn) btn.onclick = makeGuess;
+}
+
 function inicjujZamykanieModala() {
     const modal = document.getElementById('resultModal');
     const closeBtn = document.getElementById('closeModalBtn');
 
     if (closeBtn) {
-        closeBtn.onclick = function() {
-            modal.style.display = "none";
-        };
+        closeBtn.onclick = () => modal.style.display = "none";
     }
 
     window.addEventListener('click', (event) => {
-        if (event.target == modal) {
-            modal.style.display = "none";
-        }
+        if (event.target == modal) modal.style.display = "none";
     });
 }
 
