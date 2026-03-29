@@ -30,6 +30,8 @@ async function inicjujGre() {
 // 2. AKTUALIZACJA WYGRANYCH (Career Wins przez Proxy)
 async function updateWinsFromAPI() {
     try {
+        // Używamy bramki proxy i bezpośredniego linku do klasyfikacji kierowców (Standings)
+        // To źródło zawiera pole "wins" dla całej kariery każdego kierowcy
         const proxyUrl = "https://api.allorigins.win/get?url=";
         const targetUrl = encodeURIComponent("https://ergast.com/api/f1/driverStandings/1.json?limit=1000");
 
@@ -37,18 +39,22 @@ async function updateWinsFromAPI() {
         const rawData = await response.json();
         const data = JSON.parse(rawData.contents);
         
+        // Wyciągamy listę z klasyfikacji wszech czasów
         const standings = data.MRData.StandingsTable.StandingsLists[0].DriverStandings;
 
         allDrivers.forEach(driver => {
+            // Szukamy kierowcy po ID w tabeli wygranych
             const apiData = standings.find(s => s.Driver.driverId === driver.id);
             if (apiData) {
-                driver.wins = parseInt(apiData.wins);
+                driver.wins = parseInt(apiData.wins); // Tu jest suma wygranych!
+            } else {
+                driver.wins = 0; // Jeśli nie wygrał nigdy, zostaje 0
             }
         });
         
-        console.log("Dane z F1 zaktualizowane pomyślnie!");
+        console.log("Suma wygranych kariery załadowana!");
     } catch (e) {
-        console.warn("Błąd proxy, używam danych domyślnych z pliku.", e);
+        console.warn("Nie udało się pobrać statystyk kariery, zostaję przy zerach.", e);
     }
 }
 
