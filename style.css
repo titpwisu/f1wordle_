@@ -33,7 +33,6 @@ h1 {
     margin-bottom: 20px;
 }
 
-/* --- OBSZAR WPISYWANIA I PODPOWIEDZI --- */
 .input-area {
     position: relative;
     margin-bottom: 20px;
@@ -72,12 +71,11 @@ button:disabled {
     cursor: not-allowed;
 }
 
-/* --- LISTA PODPOWIEDZI --- */
 .suggestions-list {
     position: absolute;
-    top: 100%; /* Dokładnie pod inputem */
+    top: 100%;
     left: 0;
-    width: calc(100% - 90px); /* Szerokość dopasowana do inputa bez przycisku */
+    width: calc(100% - 90px);
     background: #222;
     border: 1px solid #444;
     border-top: none;
@@ -101,7 +99,6 @@ button:disabled {
     color: white;
 }
 
-/* --- PLANSZA --- */
 #board {
     display: flex;
     flex-direction: column;
@@ -124,7 +121,6 @@ button:disabled {
     text-transform: uppercase;
 }
 
-/* --- KAFELKI (TILES) --- */
 .tile {
     height: 70px;
     background: var(--tile-bg);
@@ -149,7 +145,6 @@ button:disabled {
     100% { transform: rotateX(0deg); opacity: 1; }
 }
 
-/* Statusy kafelków */
 .correct { background-color: var(--correct) !important; border-color: transparent !important; }
 .near { background-color: var(--near) !important; color: black !important; border-color: transparent !important; }
 .higher { background-color: var(--higher) !important; border-color: transparent !important; }
@@ -161,7 +156,6 @@ button:disabled {
     margin-top: 2px;
 }
 
-/* --- MODAL (WYNIK) --- */
 .modal {
     display: none;
     position: fixed;
@@ -203,7 +197,6 @@ button:disabled {
 .win-badge { background: var(--correct); color: white; }
 .lose-badge { background: var(--f1-red); color: white; }
 
-/* RWD - telefony */
 @media (max-width: 400px) {
     .tile { height: 55px; font-size: 10px; }
     .header-row { font-size: 9px; }
