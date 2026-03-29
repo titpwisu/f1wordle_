@@ -87,10 +87,10 @@ button {
     color: white;
 }
 
-/* --- PLANSZA (ROŚNIE W GÓRĘ) --- */
+/* --- PLANSZA (ROŚNIE W DÓŁ) --- */
 #board {
     display: flex;
-    flex-direction: column-reverse; /* Nowe rzędy będą wpadać na górę */
+    flex-direction: column; /* Klasyczny układ: 1, 2, 3... */
     gap: 10px;
     width: 100%;
     margin-top: 20px;
@@ -102,27 +102,25 @@ button {
     gap: 4px;
 }
 
-.board-header {
-    margin-bottom: 5px;
-    font-size: 10px;
-    color: #888;
-    font-weight: bold;
-    text-align: center;
-}
-
 .tile {
     height: 70px;
     background: var(--tile-bg);
     border: 2px solid #333;
     border-radius: 8px;
     display: flex;
-    flex-direction: column;
     align-items: center;
     justify-content: center;
     font-weight: bold;
     text-transform: uppercase;
     font-size: 14px;
-    transition: transform 0.3s;
+    /* ANIMACJA JAK W WORDLE */
+    animation: flipIn 0.5s ease forwards;
+    opacity: 0;
+}
+
+@keyframes flipIn {
+    0% { transform: rotateX(-90deg); opacity: 0; }
+    100% { transform: rotateX(0deg); opacity: 1; }
 }
 
 /* --- LOGIKA KOLORÓW --- */
