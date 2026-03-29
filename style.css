@@ -1,0 +1,59 @@
+:root {
+    --f1-red: #e10600;
+    --correct: #2ecc71;
+    --near: #f1c40f;
+    --wrong: #34495e;
+    --bg: #111;
+    --tile-bg: #1e1e1e;
+}
+
+body {
+    background-color: var(--bg);
+    color: white;
+    font-family: 'Segoe UI', sans-serif;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px;
+}
+
+.game-container { width: 100%; max-width: 500px; text-align: center; }
+
+h1 { border-left: 5px solid var(--f1-red); padding-left: 15px; text-transform: uppercase; }
+
+.input-area { position: relative; margin-bottom: 30px; display: flex; gap: 10px; }
+
+#driverInput { flex: 1; padding: 12px; border-radius: 5px; border: 2px solid #333; background: #222; color: white; }
+
+button { background: var(--f1-red); color: white; border: none; padding: 0 20px; border-radius: 5px; font-weight: bold; cursor: pointer; }
+
+/* LISTA PODPOWIEDZI - MUSI BYĆ TAKA */
+.suggestions-list {
+    position: absolute;
+    top: 50px; left: 0; right: 85px;
+    background: #222;
+    border: 1px solid #444;
+    border-radius: 5px;
+    z-index: 1000;
+    max-height: 200px;
+    overflow-y: auto;
+    display: none; /* JS to włączy */
+}
+
+.suggestion-item { padding: 12px; border-bottom: 1px solid #333; cursor: pointer; text-align: left; }
+.suggestion-item:hover { background: var(--f1-red); }
+
+.row { display: grid; grid-template-columns: repeat(5, 1fr); gap: 5px; margin-bottom: 10px; }
+
+.tile {
+    height: 75px; background: var(--tile-bg); border: 2px solid #333; border-radius: 8px;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    font-weight: bold; text-transform: uppercase;
+}
+
+.correct { background-color: var(--correct) !important; }
+.near { background-color: var(--near) !important; color: black !important; }
+.wrong { background-color: var(--wrong) !important; }
+
+.label { font-size: 9px; opacity: 0.6; }
+.value { font-size: 13px; }

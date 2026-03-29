@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <title>F1 Wordle</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="game-container">
+        <h1>🏎️ F1 Wordle</h1>
+        <p>Zgadnij dzisiejszego kierowcę!</p>
+
+        <div class="input-area">
+    <input type="text" id="driverInput" placeholder="Wpisz nazwisko..." autocomplete="off">
+    <div id="suggestions" class="suggestions-list"></div> <button onclick="makeGuess()">STRZAŁ</button>
+</div>
+
+        <div id="board">
+            </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
