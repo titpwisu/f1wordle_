@@ -25,10 +25,11 @@ async function inicjujGre() {
 
         console.log("Game ready! Target: " + targetDriver.name);
 
-        loadGameState(); // Wczytuje stan zapisany w przeglądarce
+        loadGameState(); 
         inicjujPodpowiedzi();
         inicjujPrzycisk();
         inicjujZamykanieModala();
+        inicjujZasady(); // Wywołujemy zasady tutaj
     } catch (err) {
         console.error("Start error:", err);
     }
@@ -127,7 +128,7 @@ function makeGuess() {
 
     guessesCount++;
     renderRow(guess);
-    saveGameState(guess); // Zapisz strzał
+    saveGameState(guess);
 
     if (guess.name === targetDriver.name) {
         setTimeout(() => { pokazWynik(true); zablokujGre("YOU WON!"); }, 1000);
@@ -189,11 +190,11 @@ function compareNumbers(g, t) {
 function saveGameState(guess) {
     const today = new Date().toDateString();
     let history = JSON.parse(localStorage.getItem('f1-wordle-state')) || { date: today, guesses: [] };
-    
+
     if (history.date !== today) {
         history = { date: today, guesses: [] };
     }
-    
+
     history.guesses.push(guess.name);
     localStorage.setItem('f1-wordle-state', JSON.stringify(history));
 }
@@ -231,7 +232,7 @@ function pokazWynik(czyWygrana) {
     badge.innerText = czyWygrana ? "WIN" : "LOSS";
     badge.className = czyWygrana ? "win-badge" : "lose-badge";
     document.getElementById('modalMessage').innerText = czyWygrana ? `You guessed it in ${guessesCount} tries!` : "Better luck tomorrow!";
-    document.getElementById('targetDisplay').innerHTML = `Today's driver was:<br><span style="font-size: 1.5rem; color: #e10600;">${targetDriver.name}</span>`;
+    document.getElementById('targetDisplay').innerHTML = `Today's driver was:<br><b style="color:var(--f1-red)">${targetDriver.name}</b>`;
     modal.style.display = "block";
 }
 
@@ -263,6 +264,30 @@ function inicjujZamykanieModala() {
 
     window.addEventListener('click', (event) => {
         if (event.target == modal) modal.style.display = "none";
+    });
+}
+
+function inicjujZasady() {
+    const rulesModal = document.getElementById('rulesModal');
+    const infoBtn = document.getElementById('infoBtn');
+    const closeRulesBtn = document.getElementById('closeRulesBtn');
+
+    if (infoBtn) {
+        infoBtn.onclick = () => {
+            rulesModal.style.display = "block";
+        };
+    }
+
+    if (closeRulesBtn) {
+        closeRulesBtn.onclick = () => {
+            rulesModal.style.display = "none";
+        };
+    }
+
+    window.addEventListener('click', (event) => {
+        if (event.target == rulesModal) {
+            rulesModal.style.display = "none";
+        }
     });
 }
 
