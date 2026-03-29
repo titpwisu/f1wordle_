@@ -80,10 +80,10 @@ button {
 
 .suggestion-item:hover { background: var(--f1-red); }
 
-/* --- KAFELKI --- */
+/* --- SIATKA: 6 KATEGORII --- */
 .row {
     display: grid;
-    grid-template-columns: repeat(6, 1fr); /* 6 KATEGORII */
+    grid-template-columns: repeat(6, 1fr);
     gap: 4px;
     margin-bottom: 10px;
 }
@@ -102,11 +102,11 @@ button {
     transition: transform 0.3s;
 }
 
-/* --- KOLORY --- */
-.correct { background-color: #2ecc71 !important; color: white !important; border-color: transparent !important; } /* ZIELONY */
-.near { background-color: #f1c40f !important; color: black !important; border-color: transparent !important; }    /* ŻÓŁTY (mniej / były team) */
-.higher { background-color: #9b59b6 !important; color: white !important; border-color: transparent !important; }  /* FIOLETOWY (więcej) */
-.wrong { background-color: #34495e !important; color: white !important; border-color: transparent !important; }   /* SZARY (pudło) */
+/* --- LOGIKA KOLORÓW (TWOJE ZASADY) --- */
+.correct { background-color: #2ecc71 !important; color: white !important; border-color: transparent !important; } /* ZIELONY = IDEALNIE */
+.near { background-color: #f1c40f !important; color: black !important; border-color: transparent !important; }    /* ŻÓŁTY = MNIEJ / BYŁY ZESPÓŁ */
+.higher { background-color: #9b59b6 !important; color: white !important; border-color: transparent !important; }  /* FIOLETOWY = WIĘCEJ */
+.wrong { background-color: #34495e !important; color: white !important; border-color: transparent !important; }   /* SZARY = ŹLE */
 
 .label { font-size: 8px; opacity: 0.7; margin-bottom: 2px; }
 .value { font-size: 12px; line-height: 1.1; text-align: center; }
