@@ -4,20 +4,21 @@ let guessesCount = 0;
 const MAX_GUESSES = 6;
 let currentFocus = -1;
 
-// 1. GŁÓWNA FUNKCJA STARTOWA
+// 1. START GRY
 async function inicjujGre() {
     try {
-        const res = await fetch('kierowcy.json?v=' + new Date().getTime());
+        // Pobieramy bazę z pliku - v= wymusza świeżą wersję
+        const res = await fetch('kierowcy.json?v=' + Date.now());
         allDrivers = await res.json();
 
-        // Pobieramy dane z internetu zanim gra ruszy
+        // Czekamy na dane z internetu
         await updateWinsFromAPI();
 
         const today = new Date();
         const seed = today.getFullYear() * 10000 + (today.getMonth() + 1) * 100 + today.getDate();
         targetDriver = allDrivers[seed % allDrivers.length];
 
-        console.log("Gra gotowa! Cel: " + targetDriver.name + " (Wygrane: " + targetDriver.wins + ")");
+        console.log("Gra gotowa! Cel: " + targetDriver.name + " (Wygrane w systemie: " + targetDriver.wins + ")");
 
         aktualizujPlaceholder();
         inicjujPodpowiedzi();
@@ -27,11 +28,11 @@ async function inicjujGre() {
     }
 }
 
-// 2. AKTUALIZACJA WYGRANYCH Z API (Stabilny serwer)
+// 2. AKTUALIZACJA WYGRANYCH (Career Wins)
 async function updateWinsFromAPI() {
     try {
-        // Używamy nowszego linku, który jest stabilniejszy
-        const response = await fetch('https://api.jolpi.ca/ergast/f1/driverstandings/1.json?limit=1000');
+        // Pobieramy statystyki - t= zapobiega czytaniu starych danych z cache
+        const response = await fetch('https://api.jolpi.ca/ergast/f1/driverstandings/1.json?limit=1000&t=' + Date.now());
         const data = await response.json();
         
         const standings = data.MRData.StandingsTable.StandingsLists[0].DriverStandings;
@@ -43,12 +44,12 @@ async function updateWinsFromAPI() {
             }
         });
         
-        // Sprawdzenie w konsoli (F12) czy Hamilton dostał swoje 105
+        // Sprawdzenie w konsoli (F12)
         const ham = allDrivers.find(d => d.id === 'hamilton');
-        if (ham) console.log("API załadowane. Hamilton ma: " + ham.wins);
+        if (ham) console.log("API załadowane. Hamilton ma teraz: " + ham.wins);
         
     } catch (e) {
-        console.warn("Błąd API, zostaję przy danych z pliku.", e);
+        console.warn("API spóźniło się. Używam danych z pliku.", e);
     }
 }
 
@@ -144,7 +145,7 @@ function makeGuess() {
 
     if (guess.name === targetDriver.name) {
         setTimeout(() => {
-            alert(`BRAWO! 🎉 Zgadłeś za ${guessesCount} razem!`);
+            alert(`BRAWO! 🎉 Zgadłeś za ${guessesCount} razem!\nDzisiejszy kierowca to: ${targetDriver.name}`);
             zablokujGre("WYGRANA!");
         }, 500);
     } else if (guessesCount >= MAX_GUESSES) {
@@ -161,7 +162,7 @@ function makeGuess() {
     document.getElementById('suggestions').style.display = 'none';
 }
 
-// 5. RYSOWANIE RZĘDU (Dostosowane do column-reverse)
+// 5. RYSOWANIE KAFELKÓW
 function renderRow(guess) {
     const board = document.getElementById('board');
     const row = document.createElement('div');
@@ -196,7 +197,7 @@ function renderRow(guess) {
     row.appendChild(createTile(guess.debut, debStatus, 0.4));
     row.appendChild(createTile(guess.wins, winsStatus, 0.5));
 
-    board.appendChild(row); // Używamy appendChild przy column-reverse
+    board.appendChild(row);
 }
 
 function compareNumbers(guessVal, targetVal) {
@@ -221,5 +222,5 @@ function aktualizujPlaceholder() {
     }
 }
 
-// ODPALENIE MASZYNY
+// ODPALENIE
 inicjujGre();
