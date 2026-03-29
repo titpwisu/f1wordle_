@@ -11,15 +11,14 @@ fetch('kierowcy.json?v=' + new Date().getTime())
         const today = new Date();
         const seed = today.getFullYear() * 10000 + (today.getMonth() + 1) * 100 + today.getDate();
         targetDriver = allDrivers[seed % allDrivers.length];
-        console.log("Dane załadowane. Cel na dziś:", targetDriver.name);
         
         aktualizujPlaceholder();
         inicjujPodpowiedzi();
         inicjujPrzycisk(); 
     })
-    .catch(err => console.error("BŁĄD: Nie znaleziono pliku kierowcy.json!", err));
+    .catch(err => console.error("Błąd:", err));
 
-// POMOCNICZA FUNKCJA DO TEKSTU W INPUT
+// AKTUALIZACJA POLA TEKSTOWEGO
 function aktualizujPlaceholder() {
     const input = document.getElementById('driverInput');
     if (guessesCount < MAX_GUESSES) {
@@ -61,7 +60,6 @@ function inicjujPodpowiedzi() {
         }
     });
 
-    // Chowanie podpowiedzi kliknięciem poza nie
     document.addEventListener('click', (e) => {
         if (e.target !== input && e.target !== suggBox) {
             suggBox.style.display = 'none';
@@ -69,7 +67,7 @@ function inicjujPodpowiedzi() {
     });
 }
 
-// 3. INICJALIZACJA PRZYCISKU I ENTERA
+// 3. PRZYCISK I ENTER
 function inicjujPrzycisk() {
     const btn = document.querySelector('button');
     const input = document.getElementById('driverInput');
@@ -90,18 +88,15 @@ function makeGuess() {
     const val = input.value.trim().toLowerCase();
     const guess = allDrivers.find(d => d.name.toLowerCase() === val || d.name.toLowerCase().includes(val));
 
-    // Zabezpieczenia
-    if (guessesCount >= MAX_GUESSES) return; // Zablokuj jeśli limit wykorzystany
+    if (guessesCount >= MAX_GUESSES) return; 
     if (!guess) {
         alert("Wybierz kierowcę z listy podpowiedzi!");
         return;
     }
 
-    // Zwiększamy licznik prób i renderujemy kafelki
     guessesCount++;
     renderRow(guess);
 
-    // SPRAWDZENIE WYGRANEJ LUB PRZEGRANEJ
     if (guess.name === targetDriver.name) {
         setTimeout(() => {
             alert(`BRAWO! 🎉 Zgadłeś za ${guessesCount} razem!\nDzisiejszy kierowca to: ${targetDriver.name}`);
@@ -109,11 +104,10 @@ function makeGuess() {
         }, 500);
     } else if (guessesCount >= MAX_GUESSES) {
         setTimeout(() => {
-            alert(`KONIEC GRY! 😢\nWykorzystałeś ${MAX_GUESSES} prób.\nDzisiejszy kierowca to: ${targetDriver.name}`);
+            alert(`KONIEC GRY! 😢\nDzisiejszy kierowca to: ${targetDriver.name}`);
             zablokujGre("PRZEGRANA :(");
         }, 500);
     } else {
-        // Zaktualizuj tekst w polu, jeśli gramy dalej
         aktualizujPlaceholder();
     }
 
@@ -121,7 +115,6 @@ function makeGuess() {
     document.getElementById('suggestions').style.display = 'none';
 }
 
-// POMOCNICZA FUNKCJA BLOKUJĄCA GRĘ
 function zablokujGre(wiadomosc) {
     const input = document.getElementById('driverInput');
     input.disabled = true;
@@ -129,33 +122,42 @@ function zablokujGre(wiadomosc) {
     document.querySelector('button').disabled = true;
 }
 
-// POMOCNICZA FUNKCJA DO LICZB
-function compareNumbers(guessValue, targetValue) {
-    if (guessValue === targetValue) return 'correct';
-    if (guessValue < targetValue) return 'lower-or-past'; // Mniej = Żółty
-    return 'higher'; // Więcej = Fioletowy
+// -----------------------------------------------------
+// TWOJE ZASADY - SPRAWDZANIE LICZB
+// -----------------------------------------------------
+function compareNumbers(guessVal, targetVal) {
+    const g = Number(guessVal);
+    const t = Number(targetVal);
+    
+    if (g === t) return 'correct';       // ZIELONY (Trafiony)
+    if (g < t) return 'near';            // ŻÓŁTY (Wpisano niższą wartość od poprawnej)
+    return 'higher';                     // FIOLETOWY (Wpisano wyższą wartość od poprawnej)
 }
 
-// 5. WYŚWIETLANIE 6 KAFELKÓW
+// 5. RYSOWANIE KAFELKÓW NA EKRANIE
 function renderRow(guess) {
     const board = document.getElementById('board');
     const row = document.createElement('div');
     row.className = 'row';
 
+    // KOD i NARODOWOŚĆ (Tylko zielony lub szary)
     const codeStatus = (guess.code === targetDriver.code) ? 'correct' : 'wrong';
     const natStatus = (guess.nationality === targetDriver.nationality) ? 'correct' : 'wrong';
     
+    // ZESPÓŁ (Zielony, Żółty lub Szary)
     let teamStatus = 'wrong';
     if (guess.team === targetDriver.team) {
-        teamStatus = 'correct';
+        teamStatus = 'correct'; // Obecny zespół
     } else if (targetDriver.past_teams && targetDriver.past_teams.includes(guess.team)) {
-        teamStatus = 'lower-or-past'; 
+        teamStatus = 'near';    // Żółty dla byłego zespołu
     }
 
+    // LICZBY (Korzystają z Twoich zasad kolorów)
     const numStatus = compareNumbers(guess.number, targetDriver.number);
     const debStatus = compareNumbers(guess.debut, targetDriver.debut);
     const winsStatus = compareNumbers(guess.wins, targetDriver.wins);
 
+    // FUNKCJA TWORZĄCA KWADRACIK
     function createTile(label, value, status, delay) {
         const tile = document.createElement('div');
         tile.className = `tile ${status}`;
@@ -164,6 +166,7 @@ function renderRow(guess) {
         return tile;
     }
 
+    // DODAWANIE DO RZĘDU
     row.appendChild(createTile('KOD', guess.code, codeStatus, 0));
     row.appendChild(createTile('NAT', guess.nationality, natStatus, 0.1));
     row.appendChild(createTile('TEAM', guess.team, teamStatus, 0.2));
