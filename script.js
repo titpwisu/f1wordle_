@@ -2,7 +2,7 @@ let allDrivers = [];
 let targetDriver = null;
 
 // 1. ŁADOWANIE DANYCH
-fetch('kierowcy.json')
+fetch('kierowcy.json?v=' + new Date().getTime())
     .then(res => res.json())
     .then(data => {
         allDrivers = data;
