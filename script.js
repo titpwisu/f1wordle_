@@ -4,42 +4,36 @@ let guessesCount = 0;
 const MAX_GUESSES = 6;
 let currentFocus = -1;
 
-// 1. GŁÓWNA FUNKCJA STARTOWA (Czeka na API)
+// 1. GŁÓWNA FUNKCJA STARTOWA
 async function inicjujGre() {
     try {
-        // Pobieramy bazę z pliku
         const res = await fetch('kierowcy.json?v=' + new Date().getTime());
         allDrivers = await res.json();
 
-        // Czekamy na aktualizację wygranych z API
+        // Pobieramy dane z internetu zanim gra ruszy
         await updateWinsFromAPI();
 
-        // Ustawiamy kierowcę dnia
         const today = new Date();
         const seed = today.getFullYear() * 10000 + (today.getMonth() + 1) * 100 + today.getDate();
         targetDriver = allDrivers[seed % allDrivers.length];
 
-        // Odpalamy resztę logiki
+        console.log("Gra gotowa! Cel: " + targetDriver.name + " (Wygrane: " + targetDriver.wins + ")");
+
         aktualizujPlaceholder();
         inicjujPodpowiedzi();
         inicjujPrzycisk();
-
-        console.log("Gra gotowa! Kierowca dnia: " + targetDriver.name);
     } catch (err) {
-        console.error("Błąd podczas startu gry:", err);
+        console.error("Błąd startu:", err);
     }
 }
 
-// 2. AKTUALIZACJA WYGRANYCH Z API
+// 2. AKTUALIZACJA WYGRANYCH Z API (Stabilny serwer)
 async function updateWinsFromAPI() {
     try {
-        // Używamy stabilniejszego endpointu Standings dla wygranych w karierze
-        const response = await fetch('https://ergast.com/api/f1/driverStandings/1.json?limit=1000');
+        // Używamy nowszego linku, który jest stabilniejszy
+        const response = await fetch('https://api.jolpi.ca/ergast/f1/driverstandings/1.json?limit=1000');
         const data = await response.json();
-
-        // Sprawdzamy czy dane istnieją
-        if (!data.MRData.StandingsTable.StandingsLists[0]) return;
-
+        
         const standings = data.MRData.StandingsTable.StandingsLists[0].DriverStandings;
 
         allDrivers.forEach(driver => {
@@ -48,13 +42,17 @@ async function updateWinsFromAPI() {
                 driver.wins = parseInt(apiData.wins);
             }
         });
-        console.log("Statystyki pobrane pomyślnie.");
+        
+        // Sprawdzenie w konsoli (F12) czy Hamilton dostał swoje 105
+        const ham = allDrivers.find(d => d.id === 'hamilton');
+        if (ham) console.log("API załadowane. Hamilton ma: " + ham.wins);
+        
     } catch (e) {
-        console.warn("API nie odpowiedziało na czas, używam zer z pliku.", e);
+        console.warn("Błąd API, zostaję przy danych z pliku.", e);
     }
 }
 
-// 3. LOGIKA PODPOWIEDZI I KLAWIATURY
+// 3. LOGIKA PODPOWIEDZI
 function inicjujPodpowiedzi() {
     const input = document.getElementById('driverInput');
     const suggBox = document.getElementById('suggestions');
@@ -92,7 +90,6 @@ function inicjujPodpowiedzi() {
 
     input.addEventListener('keydown', function(e) {
         let items = suggBox.getElementsByClassName('suggestion-item');
-
         if (e.key === 'ArrowDown') {
             e.preventDefault();
             currentFocus++;
@@ -106,9 +103,7 @@ function inicjujPodpowiedzi() {
         } else if (e.key === 'Enter') {
             e.preventDefault();
             if (currentFocus > -1 && suggBox.style.display === 'block') {
-                if (items[currentFocus]) {
-                    items[currentFocus].click();
-                }
+                if (items[currentFocus]) items[currentFocus].click();
             } else {
                 makeGuess();
             }
@@ -117,20 +112,17 @@ function inicjujPodpowiedzi() {
 
     function addActive(items) {
         if (!items || items.length === 0) return;
-        for (let i = 0; i < items.length; i++) {
-            items[i].classList.remove('suggestion-active');
-        }
+        for (let i = 0; i < items.length; i++) items[i].classList.remove('suggestion-active');
         items[currentFocus].classList.add('suggestion-active');
         items[currentFocus].scrollIntoView({ block: "nearest" });
     }
 
     document.addEventListener('click', (e) => {
-        if (e.target !== input && e.target !== suggBox) {
-            suggBox.style.display = 'none';
-        }
+        if (e.target !== input && e.target !== suggBox) suggBox.style.display = 'none';
     });
 }
 
+// 4. LOGIKA STRZAŁU
 function inicjujPrzycisk() {
     const btn = document.querySelector('button');
     btn.onclick = makeGuess;
@@ -152,7 +144,7 @@ function makeGuess() {
 
     if (guess.name === targetDriver.name) {
         setTimeout(() => {
-            alert(`BRAWO! 🎉 Zgadłeś za ${guessesCount} razem!\nDzisiejszy kierowca to: ${targetDriver.name}`);
+            alert(`BRAWO! 🎉 Zgadłeś za ${guessesCount} razem!`);
             zablokujGre("WYGRANA!");
         }, 500);
     } else if (guessesCount >= MAX_GUESSES) {
@@ -169,6 +161,7 @@ function makeGuess() {
     document.getElementById('suggestions').style.display = 'none';
 }
 
+// 5. RYSOWANIE RZĘDU (Dostosowane do column-reverse)
 function renderRow(guess) {
     const board = document.getElementById('board');
     const row = document.createElement('div');
@@ -203,8 +196,7 @@ function renderRow(guess) {
     row.appendChild(createTile(guess.debut, debStatus, 0.4));
     row.appendChild(createTile(guess.wins, winsStatus, 0.5));
 
-    board.appendChild(row);
-
+    board.appendChild(row); // Używamy appendChild przy column-reverse
 }
 
 function compareNumbers(guessVal, targetVal) {
@@ -229,5 +221,5 @@ function aktualizujPlaceholder() {
     }
 }
 
-// ODPALENIE GRY
+// ODPALENIE MASZYNY
 inicjujGre();
