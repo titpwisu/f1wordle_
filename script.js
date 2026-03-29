@@ -4,16 +4,14 @@ let guessesCount = 0;
 const MAX_GUESSES = 6;
 let currentFocus = -1;
 
-// 1. INICJACJA GRY
+// 1. START GAME
 async function inicjujGre() {
     try {
-        console.log("Loading local data...");
-        // Pobieramy Twój plik JSON
+        console.log("Loading data...");
         const res = await fetch('kierowcy.json?v=' + new Date().getTime());
         allDrivers = await res.json();
 
-        // 2. AUTOMATYCZNA AKTUALIZACJA Z F1DB
-        // Ta funkcja nadpisze statystyki w pamięci, jeśli w sieci są nowsze dane
+        // 2. Automated Update from F1DB
         await updateWinsFromAPI();
 
         const today = new Date();
@@ -28,31 +26,32 @@ async function inicjujGre() {
 
         console.log("Game ready! Target: " + targetDriver.name);
 
-        loadGameState(); // Wczytuje postęp z dzisiaj (Local Storage)
+        loadGameState();
         inicjujPodpowiedzi();
         inicjujPrzycisk();
         inicjujZamykanieModala();
-        inicjujZasady(); 
+        inicjujZasady();
     } catch (err) {
         console.error("Start error:", err);
     }
 }
 
-// 2. FUNKCJA AUTOMATYZACJI (F1DB)
+// 2. AUTOMATED WINS UPDATE (F1DB)
 async function updateWinsFromAPI() {
     try {
-        // Pobieramy surowe dane z repozytorium F1DB
+        // Pobieramy dane z F1DB
         const response = await fetch('https://raw.githubusercontent.com/f1db/f1db/main/dist/f1db-drivers.json');
         const remoteDrivers = await response.json();
-        console.log("F1DB Data loaded successfully!");
+        console.log("F1DB Data loaded!");
 
         allDrivers.forEach(localDriver => {
-            // Szukamy kierowcy po ID (np. "antonelli")
+            // Szukamy kierowcy w bazie zdalnej
             const remoteData = remoteDrivers.find(d => d.id === localDriver.id);
-            if (remoteData && remoteData.stats) {
-                const apiWins = parseInt(remoteData.stats.wins);
+            
+            if (remoteData) {
+                // F1DB trzyma wygrane w remoteData.stats.wins
+                const apiWins = parseInt(remoteData.stats?.wins || 0);
                 
-                // Jeśli w bazie online jest więcej wygranych niż w Twoim pliku
                 if (apiWins > localDriver.wins) {
                     console.log(`🚀 AUTO-UPDATE: ${localDriver.name} wins ${localDriver.wins} -> ${apiWins}`);
                     localDriver.wins = apiWins;
@@ -64,7 +63,7 @@ async function updateWinsFromAPI() {
     }
 }
 
-// 3. LOGIKA PODPOWIEDZI (AUTOCOMPLETE)
+// 3. SUGGESTIONS LOGIC
 function inicjujPodpowiedzi() {
     const input = document.getElementById('driverInput');
     const suggBox = document.getElementById('suggestions');
@@ -126,7 +125,7 @@ function inicjujPodpowiedzi() {
     });
 }
 
-// 4. LOGIKA ROZGRYWKI
+// 4. GAMEPLAY LOGIC
 function makeGuess() {
     const input = document.getElementById('driverInput');
     const val = input.value.trim().toLowerCase();
@@ -192,7 +191,7 @@ function compareNumbers(g, t) {
     return gNum < tNum ? 'near' : 'higher';
 }
 
-// 5. ZAPISYWANIE STANU (LOCAL STORAGE)
+// 5. STORAGE & STATE
 function saveGameState(guess) {
     const today = new Date().toDateString();
     let history = JSON.parse(localStorage.getItem('f1-wordle-state')) || { date: today, guesses: [] };
@@ -223,7 +222,7 @@ function loadGameState() {
     }
 }
 
-// 6. MODALE I UI
+// 6. UI HELPERS
 function pokazWynik(czyWygrana) {
     const modal = document.getElementById('resultModal');
     if(!modal) return;
@@ -250,7 +249,7 @@ function aktualizujPlaceholder() {
 }
 
 function inicjujPrzycisk() {
-    const btn = document.querySelector('.input-area button');
+    const btn = document.querySelector('button');
     if (btn) btn.onclick = makeGuess;
 }
 
@@ -276,5 +275,5 @@ function inicjujZasady() {
     });
 }
 
-// URUCHOMIENIE
+// EXECUTION
 inicjujGre();
