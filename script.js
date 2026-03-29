@@ -4,69 +4,57 @@ let guessesCount = 0;
 const MAX_GUESSES = 6;
 let currentFocus = -1;
 
-// 1. NOWA LOGIKA ŁADOWANIA (Gwarantuje statystyki przed startem)
-async function startGame() {
+// 1. GŁÓWNA FUNKCJA STARTOWA (Czeka na API)
+async function inicjujGre() {
     try {
+        // Pobieramy bazę z pliku
         const res = await fetch('kierowcy.json?v=' + new Date().getTime());
         allDrivers = await res.json();
 
-        // Czekamy, aż statystyki zostaną pobrane z API
+        // Czekamy na aktualizację wygranych z API
         await updateWinsFromAPI();
 
+        // Ustawiamy kierowcę dnia
         const today = new Date();
         const seed = today.getFullYear() * 10000 + (today.getMonth() + 1) * 100 + today.getDate();
         targetDriver = allDrivers[seed % allDrivers.length];
 
-        console.log("Gra gotowa. Cel dnia:", targetDriver.name);
-
+        // Odpalamy resztę logiki
         aktualizujPlaceholder();
         inicjujPodpowiedzi();
         inicjujPrzycisk();
+        
+        console.log("Gra gotowa! Kierowca dnia: " + targetDriver.name);
     } catch (err) {
         console.error("Błąd podczas startu gry:", err);
     }
 }
 
-// 2. TWOJA FUNKCJA API (Zintegrowana)
+// 2. AKTUALIZACJA WYGRANYCH Z API
 async function updateWinsFromAPI() {
     try {
-        const response = await fetch('https://ergast.com/api/f1/results/1.json?limit=1000');
+        // Używamy stabilniejszego endpointu Standings dla wygranych w karierze
+        const response = await fetch('https://ergast.com/api/f1/driverStandings/1.json?limit=1000');
         const data = await response.json();
-        const races = data.MRData.RaceTable.Races;
-
-        let winCounter = {};
-        races.forEach(race => {
-            if (race.Results && race.Results[0]) {
-                const id = race.Results[0].Driver.driverId;
-                winCounter[id] = (winCounter[id] || 0) + 1;
-            }
-        });
+        
+        // Sprawdzamy czy dane istnieją
+        if (!data.MRData.StandingsTable.StandingsLists[0]) return;
+        
+        const standings = data.MRData.StandingsTable.StandingsLists[0].DriverStandings;
 
         allDrivers.forEach(driver => {
-            if (winCounter[driver.id]) {
-                driver.wins = winCounter[driver.id];
-            } else {
-                driver.wins = 0;
+            const apiData = standings.find(s => s.Driver.driverId === driver.id);
+            if (apiData) {
+                driver.wins = parseInt(apiData.wins);
             }
         });
-        console.log("Wygrane zaktualizowane automatycznie!");
+        console.log("Statystyki pobrane pomyślnie.");
     } catch (e) {
-        console.warn("API nie odpowiedziało, używam danych domyślnych.", e);
+        console.warn("API nie odpowiedziało na czas, używam zer z pliku.", e);
     }
 }
 
-// ODPALAMY GRĘ
-startGame();
-
-// --- RESZTA TWOICH FUNKCJI (BEZ ZMIAN) ---
-
-function aktualizujPlaceholder() {
-    const input = document.getElementById('driverInput');
-    if (guessesCount < MAX_GUESSES) {
-        input.placeholder = `Wpisz kierowcę (Próba ${guessesCount + 1}/${MAX_GUESSES})`;
-    }
-}
-
+// 3. LOGIKA PODPOWIEDZI I KLAWIATURY
 function inicjujPodpowiedzi() {
     const input = document.getElementById('driverInput');
     const suggBox = document.getElementById('suggestions');
@@ -181,22 +169,6 @@ function makeGuess() {
     document.getElementById('suggestions').style.display = 'none';
 }
 
-function zablokujGre(wiadomosc) {
-    const input = document.getElementById('driverInput');
-    input.disabled = true;
-    input.placeholder = wiadomosc;
-    document.querySelector('button').disabled = true;
-}
-
-function compareNumbers(guessVal, targetVal) {
-    const g = Number(guessVal);
-    const t = Number(targetVal);
-
-    if (g === t) return 'correct';
-    if (g < t) return 'near';
-    return 'higher';
-}
-
 function renderRow(guess) {
     const board = document.getElementById('board');
     const row = document.createElement('div');
@@ -233,3 +205,28 @@ function renderRow(guess) {
 
     board.prepend(row);
 }
+
+function compareNumbers(guessVal, targetVal) {
+    const g = Number(guessVal);
+    const t = Number(targetVal);
+    if (g === t) return 'correct';
+    if (g < t) return 'near';
+    return 'higher';
+}
+
+function zablokujGre(wiadomosc) {
+    const input = document.getElementById('driverInput');
+    input.disabled = true;
+    input.placeholder = wiadomosc;
+    document.querySelector('button').disabled = true;
+}
+
+function aktualizujPlaceholder() {
+    const input = document.getElementById('driverInput');
+    if (guessesCount < MAX_GUESSES) {
+        input.placeholder = `Wpisz kierowcę (Próba ${guessesCount + 1}/${MAX_GUESSES})`;
+    }
+}
+
+// ODPALENIE GRY
+inicjujGre();
