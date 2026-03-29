@@ -1,0 +1,11 @@
+[
+  { "name": "Max Verstappen", "code": "VER", "nationality": "Dutch", "number": 1, "debut": 2015, "team": "Red Bull", "past_teams": ["Toro Rosso"], "engine": "Honda RBPT" },
+  { "name": "Sergio Perez", "code": "PER", "nationality": "Mexican", "number": 11, "debut": 2011, "team": "Red Bull", "past_teams": ["Sauber", "McLaren", "Force India", "Racing Point"], "engine": "Honda RBPT" },
+  { "name": "Lewis Hamilton", "code": "HAM", "nationality": "British", "number": 44, "debut": 2007, "team": "Ferrari", "past_teams": ["McLaren", "Mercedes"], "engine": "Ferrari" },
+  { "name": "Charles Leclerc", "code": "LEC", "nationality": "Monegasque", "number": 16, "debut": 2018, "team": "Ferrari", "past_teams": ["Sauber"], "engine": "Ferrari" },
+  { "name": "Lando Norris", "code": "NOR", "nationality": "British", "number": 4, "debut": 2019, "team": "McLaren", "past_teams": [], "engine": "Mercedes" },
+  { "name": "Oscar Piastri", "code": "PIA", "nationality": "Australian", "number": 81, "debut": 2023, "team": "McLaren", "past_teams": [], "engine": "Mercedes" },
+  { "name": "Fernando Alonso", "code": "ALO", "nationality": "Spanish", "number": 14, "debut": 2001, "team": "Aston Martin", "past_teams": ["Minardi", "Renault", "McLaren", "Ferrari", "Alpine"], "engine": "Mercedes" },
+  { "name": "George Russell", "code": "RUS", "nationality": "British", "number": 63, "debut": 2019, "team": "Mercedes", "past_teams": ["Williams"], "engine": "Mercedes" },
+  { "name": "Carlos Sainz", "code": "SAI", "nationality": "Spanish", "number": 55, "debut": 2015, "team": "Williams", "past_teams": ["Toro Rosso", "Renault", "McLaren", "Ferrari"], "engine": "Mercedes" }
+]
