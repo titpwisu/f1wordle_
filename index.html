@@ -5,7 +5,7 @@
     <title>F1 Wordle</title>
     <link rel="icon" type="image/png" href="favicon.png">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
-    <link rel="stylesheet" href="style.css?v=4">
+    <link rel="stylesheet" href="style.css?v=5">
 </head>
 <body>
     <div class="game-container">
@@ -18,17 +18,30 @@
             <button onclick="makeGuess()">STRZAŁ</button>
         </div>
 
-        <div class="board-header row">
-            <div>KOD</div>
-            <div>NAT</div>
-            <div>TEAM</div>
-            <div>NUM</div>
-            <div>ROK</div>
-            <div>WINS</div>
+        <div class="board-header">
+            <div class="header-row">
+                <div>KOD</div>
+                <div>NAT</div>
+                <div>TEAM</div>
+                <div>NUM</div>
+                <div>ROK</div>
+                <div>WINS</div>
+            </div>
         </div>
 
         <div id="board"></div>
 
-    </div> <script src="script.js?v=4"></script>
+        <div id="resultModal" class="modal">
+            <div class="modal-content">
+                <h2 id="modalTitle">WYNIK</h2>
+                <div id="modalStatusBadge">STATUS</div>
+                <p id="modalMessage">Wiadomość</p>
+                <div id="targetDisplay"></div>
+                <p style="font-size: 0.8rem; color: #666; margin-top: 20px;">Wróć jutro po nowego kierowcę!</p>
+            </div>
+        </div>
+
+    </div>
+    <script src="script.js?v=5"></script>
 </body>
 </html>
