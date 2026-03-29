@@ -7,18 +7,17 @@ let currentFocus = -1;
 // 1. START GRY
 async function inicjujGre() {
     try {
-        // Pobieramy bazę z pliku - v= wymusza świeżą wersję
         const res = await fetch('kierowcy.json?v=' + Date.now());
         allDrivers = await res.json();
 
-        // Czekamy na dane z internetu
+        // Czekamy na dane z internetu przez bramkę proxy (omijamy kłódkę)
         await updateWinsFromAPI();
 
         const today = new Date();
         const seed = today.getFullYear() * 10000 + (today.getMonth() + 1) * 100 + today.getDate();
         targetDriver = allDrivers[seed % allDrivers.length];
 
-        console.log("Gra gotowa! Cel: " + targetDriver.name + " (Wygrane w systemie: " + targetDriver.wins + ")");
+        console.log("Gra gotowa! Cel: " + targetDriver.name + " (Wygrane: " + targetDriver.wins + ")");
 
         aktualizujPlaceholder();
         inicjujPodpowiedzi();
@@ -28,12 +27,15 @@ async function inicjujGre() {
     }
 }
 
-// 2. AKTUALIZACJA WYGRANYCH (Career Wins)
+// 2. AKTUALIZACJA WYGRANYCH (Career Wins przez Proxy)
 async function updateWinsFromAPI() {
     try {
-        // Pobieramy statystyki - t= zapobiega czytaniu starych danych z cache
-        const response = await fetch('https://api.jolpi.ca/ergast/f1/driverstandings/1.json?limit=1000&t=' + Date.now());
-        const data = await response.json();
+        const proxyUrl = "https://api.allorigins.win/get?url=";
+        const targetUrl = encodeURIComponent("https://ergast.com/api/f1/driverStandings/1.json?limit=1000");
+
+        const response = await fetch(proxyUrl + targetUrl);
+        const rawData = await response.json();
+        const data = JSON.parse(rawData.contents);
         
         const standings = data.MRData.StandingsTable.StandingsLists[0].DriverStandings;
 
@@ -44,12 +46,9 @@ async function updateWinsFromAPI() {
             }
         });
         
-        // Sprawdzenie w konsoli (F12)
-        const ham = allDrivers.find(d => d.id === 'hamilton');
-        if (ham) console.log("API załadowane. Hamilton ma teraz: " + ham.wins);
-        
+        console.log("Dane z F1 zaktualizowane pomyślnie!");
     } catch (e) {
-        console.warn("API spóźniło się. Używam danych z pliku.", e);
+        console.warn("Błąd proxy, używam danych domyślnych z pliku.", e);
     }
 }
 
