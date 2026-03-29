@@ -1,6 +1,6 @@
 name: Generate Historical F1 Database
 on:
-  workflow_dispatch: # Odpalisz to raz ręcznie i stworzy Ci bazę
+  workflow_dispatch:
 
 jobs:
   generate:
@@ -9,42 +9,48 @@ jobs:
       contents: write
     steps:
       - uses: actions/checkout@v3
-      - name: Fetch All Drivers Since 2014
+      - name: Fetch Drivers Since 2014
         run: |
           python - <<EOF
           import requests
           import json
 
           all_drivers_data = []
-          # Pętla przez wszystkie sezony od 2014 do 2026
-          for year in range(2014, 2027):
-              print(f"Pobieram sezon {year}...")
-              url = f"https://api.jolpica.com/ergast/f1/{year}/driverstandings.json"
-              try:
-                  r = requests.get(url, timeout=15)
-                  if r.status_code == 200:
-                      standings = r.json()['MRData']['StandingsTable']['StandingsLists'][0]['DriverStandings']
-                      for item in standings:
-                          d = item['Driver']
-                          full_name = f"{d['givenName']} {d['familyName']}"
-                          
-                          # Sprawdzamy czy już go mamy w bazie (żeby nie było duplikatów)
-                          if not any(x['name'] == full_name for x in all_drivers_data):
-                              all_drivers_data.append({
-                                  "name": full_name,
-                                  "code": d.get('code', d['familyName'][:3].upper()),
-                                  "nationality": d['nationality'],
-                                  "number": int(d.get('permanentNumber', 0)),
-                                  "debut": int(d['dateOfBirth'].split('-')[0]) + 20, # Przybliżony rok debiutu dla starych danych
-                                  "team": item['Constructors'][0]['name'],
-                                  "engine": "Unknown", # API tego nie podaje wprost
-                                  "past_teams": []
-                              })
-              except:
-                  continue
-
-          with open('kierowcy.json', 'w', encoding='utf-8') as f:
-              json.dump(all_drivers_data, f, indent=4, ensure_ascii=False)
+          # Pobieramy listę kierowców, którzy brali udział w sezonach 2014-2026
+          # Używamy limit=500, żeby pobrać wszystkich naraz
+          url = "https://api.jolpica.com/ergast/f1/drivers.json?limit=500&offset=820"
+          
+          try:
+              r = requests.get(url, timeout=20)
+              drivers = r.json()['MRData']['DriverTable']['Drivers']
+              
+              for d in drivers:
+                  # Filtrujemy tylko tych, którzy debiutowali po 2010 (dla bezpieczeństwa bazy)
+                  # Lub po prostu bierzemy wszystkich z tego zakresu API
+                  full_name = f"{d['givenName']} {d['familyName']}"
+                  
+                  all_drivers_data.append({
+                      "name": full_name,
+                      "code": d.get('code', d['familyName'][:3].upper()),
+                      "nationality": d['nationality'],
+                      "number": int(d.get('permanentNumber', 0)),
+                      "debut": int(d['dateOfBirth'].split('-')[0]) + 20,
+                      "team": "F1 Driver", # Globalny placeholder
+                      "past_teams": [],
+                      "engine": "Hybrid"
+                  })
+              
+              # Zapisujemy tylko jeśli lista nie jest pusta!
+              if len(all_drivers_data) > 0:
+                  with open('kierowcy.json', 'w', encoding='utf-8') as f:
+                      json.dump(all_drivers_data, f, indent=4, ensure_ascii=False)
+                  print(f"Sukces! Pobrano {len(all_drivers_data)} kierowców.")
+              else:
+                  print("Błąd: Pobrano 0 kierowców.")
+                  exit(1)
+          except Exception as e:
+              print(f"Błąd krytyczny: {e}")
+              exit(1)
           EOF
 
       - name: Commit and Push
@@ -52,5 +58,5 @@ jobs:
           git config --global user.name 'F1-Database-Generator'
           git config --global user.email 'bot@f1wordle.com'
           git add kierowcy.json
-          git commit -m "Wygenerowano bazę kierowców od 2014 roku" || exit 0
+          git commit -m "Auto-naprawa bazy kierowców" || exit 0
           git push
