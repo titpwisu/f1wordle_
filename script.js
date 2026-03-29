@@ -4,22 +4,62 @@ let guessesCount = 0;
 const MAX_GUESSES = 6;
 let currentFocus = -1;
 
-// 1. ŁADOWANIE DANYCH
-fetch('kierowcy.json?v=' + new Date().getTime())
-    .then(res => res.json())
-    .then(data => {
-        allDrivers = data;
+// 1. NOWA LOGIKA ŁADOWANIA (Gwarantuje statystyki przed startem)
+async function startGame() {
+    try {
+        const res = await fetch('kierowcy.json?v=' + new Date().getTime());
+        allDrivers = await res.json();
+
+        // Czekamy, aż statystyki zostaną pobrane z API
+        await updateWinsFromAPI();
+
         const today = new Date();
         const seed = today.getFullYear() * 10000 + (today.getMonth() + 1) * 100 + today.getDate();
         targetDriver = allDrivers[seed % allDrivers.length];
 
+        console.log("Gra gotowa. Cel dnia:", targetDriver.name);
+
         aktualizujPlaceholder();
         inicjujPodpowiedzi();
         inicjujPrzycisk();
-    })
-    .catch(err => console.error("Błąd:", err));
+    } catch (err) {
+        console.error("Błąd podczas startu gry:", err);
+    }
+}
 
-// AKTUALIZACJA POLA TEKSTOWEGO
+// 2. TWOJA FUNKCJA API (Zintegrowana)
+async function updateWinsFromAPI() {
+    try {
+        const response = await fetch('https://ergast.com/api/f1/results/1.json?limit=1000');
+        const data = await response.json();
+        const races = data.MRData.RaceTable.Races;
+
+        let winCounter = {};
+        races.forEach(race => {
+            if (race.Results && race.Results[0]) {
+                const id = race.Results[0].Driver.driverId;
+                winCounter[id] = (winCounter[id] || 0) + 1;
+            }
+        });
+
+        allDrivers.forEach(driver => {
+            if (winCounter[driver.id]) {
+                driver.wins = winCounter[driver.id];
+            } else {
+                driver.wins = 0;
+            }
+        });
+        console.log("Wygrane zaktualizowane automatycznie!");
+    } catch (e) {
+        console.warn("API nie odpowiedziało, używam danych domyślnych.", e);
+    }
+}
+
+// ODPALAMY GRĘ
+startGame();
+
+// --- RESZTA TWOICH FUNKCJI (BEZ ZMIAN) ---
+
 function aktualizujPlaceholder() {
     const input = document.getElementById('driverInput');
     if (guessesCount < MAX_GUESSES) {
@@ -27,7 +67,6 @@ function aktualizujPlaceholder() {
     }
 }
 
-// 2. LOGIKA PODPOWIEDZI I KLAWIATURY
 function inicjujPodpowiedzi() {
     const input = document.getElementById('driverInput');
     const suggBox = document.getElementById('suggestions');
@@ -104,13 +143,11 @@ function inicjujPodpowiedzi() {
     });
 }
 
-// 3. PRZYCISK "ZGADNIJ"
 function inicjujPrzycisk() {
     const btn = document.querySelector('button');
     btn.onclick = makeGuess;
 }
 
-// 4. LOGIKA STRZAŁU
 function makeGuess() {
     const input = document.getElementById('driverInput');
     const val = input.value.trim().toLowerCase();
@@ -151,9 +188,6 @@ function zablokujGre(wiadomosc) {
     document.querySelector('button').disabled = true;
 }
 
-// -----------------------------------------------------
-// LOGIKA KOLORÓW
-// -----------------------------------------------------
 function compareNumbers(guessVal, targetVal) {
     const g = Number(guessVal);
     const t = Number(targetVal);
@@ -163,7 +197,6 @@ function compareNumbers(guessVal, targetVal) {
     return 'higher';
 }
 
-// 5. RYSOWANIE KAFELKÓW NA EKRANIE
 function renderRow(guess) {
     const board = document.getElementById('board');
     const row = document.createElement('div');
@@ -183,16 +216,14 @@ function renderRow(guess) {
     const debStatus = compareNumbers(guess.debut, targetDriver.debut);
     const winsStatus = compareNumbers(guess.wins, targetDriver.wins);
 
-    // NOWA FUNKCJA - Wrzuca tylko samą wartość do kafelka!
     function createTile(value, status, delay) {
         const tile = document.createElement('div');
         tile.className = `tile ${status}`;
         tile.style.animationDelay = delay + 's';
-        tile.innerHTML = value; // Bez div class="label" i div class="value"
+        tile.innerHTML = value;
         return tile;
     }
 
-    // DODAWANIE DO RZĘDU (Same wartości)
     row.appendChild(createTile(guess.code, codeStatus, 0));
     row.appendChild(createTile(guess.nationality, natStatus, 0.1));
     row.appendChild(createTile(guess.team, teamStatus, 0.2));
