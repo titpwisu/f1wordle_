@@ -4,10 +4,10 @@ let guessesCount = 0;
 const MAX_GUESSES = 6;
 let currentFocus = -1;
 
-// 1. START GRY
+// 1. START GAME
 async function inicjujGre() {
     try {
-        console.log("Ładowanie danych...");
+        console.log("Loading data...");
         const res = await fetch('kierowcy.json?v=' + new Date().getTime());
         allDrivers = await res.json();
 
@@ -20,21 +20,21 @@ async function inicjujGre() {
         const input = document.getElementById('driverInput');
         if (input) {
             input.disabled = false;
-            input.placeholder = "Wpisz nazwisko kierowcy...";
+            input.placeholder = "Enter driver name...";
         }
 
-        console.log("Gra gotowa! Cel: " + targetDriver.name);
+        console.log("Game ready! Target: " + targetDriver.name);
 
         aktualizujPlaceholder();
         inicjujPodpowiedzi();
         inicjujPrzycisk();
-        inicjujZamykanieModala(); // Wywołujemy tutaj, żeby mieć pewność, że wszystko gotowe
+        inicjujZamykanieModala();
     } catch (err) {
-        console.error("Błąd startu:", err);
+        console.error("Start error:", err);
     }
 }
 
-// 2. API WYGRANYCH (Ergast)
+// 2. WINS API (Ergast)
 async function updateWinsFromAPI() {
     try {
         const response = await fetch('https://api.jolpi.ca/ergast/f1/driverstandings/1.json?limit=1000');
@@ -46,11 +46,11 @@ async function updateWinsFromAPI() {
             if (apiData) driver.wins = parseInt(apiData.wins);
         });
     } catch (e) {
-        console.warn("Błąd API, używam danych z pliku.");
+        console.warn("API error, using local data.");
     }
 }
 
-// 3. LOGIKA PODPOWIEDZI
+// 3. SUGGESTIONS LOGIC
 function inicjujPodpowiedzi() {
     const input = document.getElementById('driverInput');
     const suggBox = document.getElementById('suggestions');
@@ -112,7 +112,7 @@ function inicjujPodpowiedzi() {
     });
 }
 
-// 4. STRZAŁ I WYNIK
+// 4. GUESS & RESULT
 function inicjujPrzycisk() {
     const btn = document.querySelector('button');
     if (btn) btn.onclick = makeGuess;
@@ -126,7 +126,7 @@ function makeGuess() {
                   allDrivers.find(d => d.name.toLowerCase().includes(val));
 
     if (guessesCount >= MAX_GUESSES || !guess) {
-        if (!guess && val !== "") alert("Wybierz kierowcę z listy!");
+        if (!guess && val !== "") alert("Please select a driver from the list!");
         return;
     }
 
@@ -134,9 +134,9 @@ function makeGuess() {
     renderRow(guess);
 
     if (guess.name === targetDriver.name) {
-        setTimeout(() => { pokazWynik(true); zablokujGre("WYGRANA!"); }, 1000);
+        setTimeout(() => { pokazWynik(true); zablokujGre("YOU WON!"); }, 1000);
     } else if (guessesCount >= MAX_GUESSES) {
-        setTimeout(() => { pokazWynik(false); zablokujGre("PRZEGRANA"); }, 1000);
+        setTimeout(() => { pokazWynik(false); zablokujGre("GAME OVER"); }, 1000);
     } else {
         aktualizujPlaceholder();
     }
@@ -193,12 +193,12 @@ function pokazWynik(czyWygrana) {
     const modal = document.getElementById('resultModal');
     if(!modal) return;
 
-    document.getElementById('modalTitle').innerText = czyWygrana ? "GRATULACJE!" : "KONIEC GRY...";
+    document.getElementById('modalTitle').innerText = czyWygrana ? "CONGRATULATIONS!" : "GAME OVER...";
     const badge = document.getElementById('modalStatusBadge');
-    badge.innerText = czyWygrana ? "WYGRANA" : "PRZEGRANA";
+    badge.innerText = czyWygrana ? "WIN" : "LOSS";
     badge.className = czyWygrana ? "win-badge" : "lose-badge";
-    document.getElementById('modalMessage').innerText = czyWygrana ? `Zgadłeś w ${guessesCount} próbach!` : "Inżynierowie nie są zadowoleni...";
-    document.getElementById('targetDisplay').innerHTML = `Dzisiejszy kierowca to:<br><span style="font-size: 1.5rem; color: #e10600;">${targetDriver.name}</span>`;
+    document.getElementById('modalMessage').innerText = czyWygrana ? `You guessed it in ${guessesCount} tries!` : "The engineers are not happy...";
+    document.getElementById('targetDisplay').innerHTML = `Today's driver was:<br><span style="font-size: 1.5rem; color: #e10600;">${targetDriver.name}</span>`;
     modal.style.display = "block";
 }
 
@@ -212,10 +212,10 @@ function zablokujGre(msg) {
 
 function aktualizujPlaceholder() {
     const input = document.getElementById('driverInput');
-    if(input) input.placeholder = `Próba ${guessesCount + 1}/${MAX_GUESSES}`;
+    if(input) input.placeholder = `Attempt ${guessesCount + 1}/${MAX_GUESSES}`;
 }
 
-// 5. OBSŁUGA MODALA
+// 5. MODAL HANDLING
 function inicjujZamykanieModala() {
     const modal = document.getElementById('resultModal');
     const closeBtn = document.getElementById('closeModalBtn');
@@ -226,7 +226,6 @@ function inicjujZamykanieModala() {
         };
     }
 
-    // Zamykanie po kliknięciu w tło (jeden listener wystarczy)
     window.addEventListener('click', (event) => {
         if (event.target == modal) {
             modal.style.display = "none";
@@ -234,5 +233,5 @@ function inicjujZamykanieModala() {
     });
 }
 
-// URUCHOMIENIE
+// RUN
 inicjujGre();
