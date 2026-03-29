@@ -9,59 +9,18 @@ jobs:
       contents: write
     steps:
       - uses: actions/checkout@v3
-      - name: Fetch Drivers by Season
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }} # WYMUSZENIE DOSTĘPU
+
+      - name: Fetch Drivers
         run: |
-          python - <<EOF
-          import requests
-          import json
-          import time
+          curl "https://api.jolpi.ca/ergast/f1/drivers.json?limit=200&offset=800" > temp.json
+          python3 -c "import json; d=json.load(open('temp.json'))['MRData']['DriverTable']['Drivers']; out=[{'name':f'{x['givenName']} {x['familyName']}', 'code':x.get('code', x['familyName'][:3].upper()), 'nationality':x['nationality'], 'number':int(x.get('permanentNumber',0)), 'debut':int(x['dateOfBirth'].split('-')[0])+20, 'team':'F1 Driver', 'past_teams':[], 'engine':'Hybrid'} for x in d]; json.dump(out, open('kierowcy.json', 'w', encoding='utf-8'), indent=4, ensure_ascii=False)"
 
-          all_drivers = {}
-
-          # Lecimy po sezonach od 2014 do 2026
-          for year in range(2014, 2027):
-              print(f"Pobieram kierowców z sezonu {year}...")
-              url = f"https://api.jolpi.ca/ergast/f1/{year}/drivers.json"
-              
-              try:
-                  r = requests.get(url, timeout=15)
-                  if r.status_code == 200:
-                      drivers = r.json()['MRData']['DriverTable']['Drivers']
-                      for d in drivers:
-                          full_name = f"{d['givenName']} {d['familyName']}"
-                          # Jeśli kierowcy nie ma jeszcze w słowniku, dodajemy go
-                          if full_name not in all_drivers:
-                              all_drivers[full_name] = {
-                                  "name": full_name,
-                                  "code": d.get('code', d['familyName'][:3].upper()),
-                                  "nationality": d['nationality'],
-                                  "number": int(d.get('permanentNumber', 0)),
-                                  "debut": int(d['dateOfBirth'].split('-')[0]) + 20, # Szacowany rok debiutu
-                                  "team": "F1 Driver",
-                                  "past_teams": [],
-                                  "engine": "Hybrid"
-                              }
-                  # Mała przerwa, żeby nie zablokowali nam IP
-                  time.sleep(0.5)
-              except Exception as e:
-                  print(f"Błąd w sezonie {year}: {e}")
-
-          # Zmieniamy słownik na listę
-          final_list = list(all_drivers.values())
-
-          if len(final_list) > 0:
-              with open('kierowcy.json', 'w', encoding='utf-8') as f:
-                  json.dump(final_list, f, indent=4, ensure_ascii=False)
-              print(f"Sukces! Zebrano {len(final_list)} unikalnych kierowców.")
-          else:
-              print("Błąd: Lista jest pusta!")
-              exit(1)
-          EOF
-
-      - name: Commit and Push
+      - name: Push Changes
         run: |
-          git config --global user.name 'F1-Database-Generator'
-          git config --global user.email 'bot@f1wordle.com'
+          git config --global user.name 'github-actions[bot]'
+          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
           git add kierowcy.json
-          git commit -m "Baza wygenerowana na podstawie sezonów 2014-2026" || exit 0
-          git push
+          git commit -m "Aktualizacja bazy kierowców" || echo "Brak zmian"
+          git push origin main
