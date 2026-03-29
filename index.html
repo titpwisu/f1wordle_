@@ -9,6 +9,24 @@
 </head>
 <body>
     <div class="game-container">
+        <div class="top-bar">
+    <img src="info.png" id="infoBtn" alt="How to play" class="info-icon">
+</div>
+
+<div id="rulesModal" class="modal">
+    <div class="modal-content">
+        <h2>HOW TO PLAY</h2>
+        <p>Guess the F1 Driver in 6 tries.</p>
+        <ul style="text-align: left; font-size: 0.9rem; line-height: 1.6;">
+            <li><span style="color: var(--correct)">🟩 Green</span>: Perfect match!</li>
+            <li><span style="color: var(--near)">🟨 Yellow</span>: Driver played for this team in the past.</li>
+            <li><span style="color: var(--higher)">🟪 Purple</span>: Target value is <b>lower</b> (↓).</li>
+            <li><span style="color: var(--near)">🟨 Yellow (Arrows)</span>: Target value is <b>higher</b> (↑).</li>
+            <li><span style="color: var(--wrong)">⬛ Grey</span>: No match.</li>
+        </ul>
+        <button id="closeRulesBtn" style="margin-top: 20px;">GOT IT!</button>
+    </div>
+</div>
         <h1>🏎️ F1 Wordle</h1>
         <p>Guess today's driver!</p>
 
