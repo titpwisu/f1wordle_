@@ -11,6 +11,7 @@ async function inicjujGre() {
         const res = await fetch('kierowcy.json?v=' + new Date().getTime());
         allDrivers = await res.json();
 
+        // 2. Automated Update from F1DB
         await updateWinsFromAPI();
 
         const today = new Date();
@@ -29,25 +30,31 @@ async function inicjujGre() {
         inicjujPodpowiedzi();
         inicjujPrzycisk();
         inicjujZamykanieModala();
-        inicjujZasady(); // Wywołanie nowej funkcji zasad
+        inicjujZasady(); 
     } catch (err) {
         console.error("Start error:", err);
     }
 }
 
-// 2. WINS API (Ergast)
+// 2. AUTOMATED WINS UPDATE (F1DB)
 async function updateWinsFromAPI() {
     try {
-        const response = await fetch('https://api.jolpi.ca/ergast/f1/driverstandings/1.json?limit=1000');
-        const data = await response.json();
-        const standings = data.MRData.StandingsTable.StandingsLists[0].DriverStandings;
+        // Fetching raw JSON from F1DB repository
+        const response = await fetch('https://raw.githubusercontent.com/f1db/f1db/main/dist/f1db-drivers.json');
+        const remoteDrivers = await response.json();
 
-        allDrivers.forEach(driver => {
-            const apiData = standings.find(s => s.Driver.driverId === driver.id);
-            if (apiData) driver.wins = parseInt(apiData.wins);
+        allDrivers.forEach(localDriver => {
+            const remoteData = remoteDrivers.find(d => d.id === localDriver.id);
+            if (remoteData && remoteData.stats) {
+                const apiWins = parseInt(remoteData.stats.wins);
+                if (apiWins > localDriver.wins) {
+                    console.log(`Auto-update: ${localDriver.name} wins ${localDriver.wins} -> ${apiWins}`);
+                    localDriver.wins = apiWins;
+                }
+            }
         });
     } catch (e) {
-        console.warn("API error, using local data.");
+        console.warn("Automated update failed. Using local fallback data.");
     }
 }
 
@@ -113,11 +120,10 @@ function inicjujPodpowiedzi() {
     });
 }
 
-// 4. GUESS LOGIC
+// 4. GAMEPLAY LOGIC
 function makeGuess() {
     const input = document.getElementById('driverInput');
     const val = input.value.trim().toLowerCase();
-
     const guess = allDrivers.find(d => d.name.toLowerCase() === val) ||
                   allDrivers.find(d => d.name.toLowerCase().includes(val));
 
@@ -157,20 +163,14 @@ function renderRow(guess) {
     ];
 
     const vals = [guess.code, guess.nationality, guess.team, guess.number, guess.debut, guess.wins];
-
     vals.forEach((v, i) => {
         const t = document.createElement('div');
         t.className = `tile ${st[i]}`;
         t.style.animationDelay = (i * 0.1) + 's';
-
         if (i >= 3) {
-            if (st[i] === 'near') {
-                t.innerHTML = `<span>${v}</span><span class="arrow">↑</span>`;
-            } else if (st[i] === 'higher') {
-                t.innerHTML = `<span>${v}</span><span class="arrow">↓</span>`;
-            } else {
-                t.innerHTML = v;
-            }
+            if (st[i] === 'near') t.innerHTML = `<span>${v}</span><span class="arrow">↑</span>`;
+            else if (st[i] === 'higher') t.innerHTML = `<span>${v}</span><span class="arrow">↓</span>`;
+            else t.innerHTML = v;
         } else {
             t.innerHTML = v;
         }
@@ -190,7 +190,7 @@ function compareNumbers(g, t) {
 function saveGameState(guess) {
     const today = new Date().toDateString();
     let history = JSON.parse(localStorage.getItem('f1-wordle-state')) || { date: today, guesses: [] };
-    if (history.date !== today) { history = { date: today, guesses: [] }; }
+    if (history.date !== today) history = { date: today, guesses: [] };
     history.guesses.push(guess.name);
     localStorage.setItem('f1-wordle-state', JSON.stringify(history));
 }
@@ -198,7 +198,6 @@ function saveGameState(guess) {
 function loadGameState() {
     const today = new Date().toDateString();
     const saved = JSON.parse(localStorage.getItem('f1-wordle-state'));
-
     if (saved && saved.date === today) {
         saved.guesses.forEach(name => {
             const driver = allDrivers.find(d => d.name === name);
@@ -218,7 +217,7 @@ function loadGameState() {
     }
 }
 
-// 6. UI HELPERS & MODALS
+// 6. UI HELPERS
 function pokazWynik(czyWygrana) {
     const modal = document.getElementById('resultModal');
     if(!modal) return;
@@ -252,7 +251,7 @@ function inicjujPrzycisk() {
 function inicjujZamykanieModala() {
     const modal = document.getElementById('resultModal');
     const closeBtn = document.getElementById('closeModalBtn');
-    if (closeBtn) { closeBtn.onclick = () => modal.style.display = "none"; }
+    if (closeBtn) closeBtn.onclick = () => modal.style.display = "none";
     window.addEventListener('click', (event) => {
         if (event.target == modal) modal.style.display = "none";
     });
@@ -263,16 +262,13 @@ function inicjujZasady() {
     const infoBtn = document.getElementById('infoBtn');
     const closeRulesBtn = document.getElementById('closeRulesBtn');
 
-    if (infoBtn) {
-        infoBtn.onclick = () => { rulesModal.style.display = "block"; };
-    }
-    if (closeRulesBtn) {
-        closeRulesBtn.onclick = () => { rulesModal.style.display = "none"; };
-    }
+    if (infoBtn) infoBtn.onclick = () => rulesModal.style.display = "block";
+    if (closeRulesBtn) closeRulesBtn.onclick = () => rulesModal.style.display = "none";
+    
     window.addEventListener('click', (event) => {
         if (event.target == rulesModal) rulesModal.style.display = "none";
     });
 }
 
-// RUN
+// EXECUTION
 inicjujGre();
