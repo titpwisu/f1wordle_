@@ -1,62 +1,43 @@
-name: Generate Historical F1 Database
+name: Ultimate F1 Database Sync
 on:
-  workflow_dispatch:
+  workflow_dispatch: # Odpalasz tylko przyciskiem, nic samo się nie psuje
 
 jobs:
-  generate:
+  sync:
     runs-on: ubuntu-latest
     permissions:
       contents: write
     steps:
       - uses: actions/checkout@v3
-      - name: Fetch Drivers Since 2014
+      - name: Fetch Master Driver List
         run: |
           python - <<EOF
           import requests
           import json
 
-          all_drivers_data = []
-          # Pobieramy listę kierowców, którzy brali udział w sezonach 2014-2026
-          # Używamy limit=500, żeby pobrać wszystkich naraz
-          url = "https://api.jolpica.com/ergast/f1/drivers.json?limit=500&offset=820"
+          # Używamy surowego pliku z danymi historycznymi (bardziej stabilne niż API)
+          url = "https://raw.githubusercontent.com/janduch/f1-data/main/drivers_since_2014.json"
           
           try:
               r = requests.get(url, timeout=20)
-              drivers = r.json()['MRData']['DriverTable']['Drivers']
-              
-              for d in drivers:
-                  # Filtrujemy tylko tych, którzy debiutowali po 2010 (dla bezpieczeństwa bazy)
-                  # Lub po prostu bierzemy wszystkich z tego zakresu API
-                  full_name = f"{d['givenName']} {d['familyName']}"
-                  
-                  all_drivers_data.append({
-                      "name": full_name,
-                      "code": d.get('code', d['familyName'][:3].upper()),
-                      "nationality": d['nationality'],
-                      "number": int(d.get('permanentNumber', 0)),
-                      "debut": int(d['dateOfBirth'].split('-')[0]) + 20,
-                      "team": "F1 Driver", # Globalny placeholder
-                      "past_teams": [],
-                      "engine": "Hybrid"
-                  })
-              
-              # Zapisujemy tylko jeśli lista nie jest pusta!
-              if len(all_drivers_data) > 0:
+              if r.status_code == 200:
+                  data = r.json()
+                  # Zapisujemy do Twojego pliku
                   with open('kierowcy.json', 'w', encoding='utf-8') as f:
-                      json.dump(all_drivers_data, f, indent=4, ensure_ascii=False)
-                  print(f"Sukces! Pobrano {len(all_drivers_data)} kierowców.")
+                      json.dump(data, f, indent=4, ensure_ascii=False)
+                  print(f"Sukces! Pobrano {len(data)} kierowców.")
               else:
-                  print("Błąd: Pobrano 0 kierowców.")
+                  print("Błąd serwera z bazą danych.")
                   exit(1)
           except Exception as e:
-              print(f"Błąd krytyczny: {e}")
+              print(f"Błąd połączenia: {e}")
               exit(1)
           EOF
 
       - name: Commit and Push
         run: |
-          git config --global user.name 'F1-Database-Generator'
+          git config --global user.name 'F1-Master-Sync'
           git config --global user.email 'bot@f1wordle.com'
           git add kierowcy.json
-          git commit -m "Auto-naprawa bazy kierowców" || exit 0
+          git commit -m "Zsynchronizowano pełną bazę 2014-2026" || exit 0
           git push
