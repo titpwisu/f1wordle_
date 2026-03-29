@@ -1,8 +1,5 @@
 :root {
     --f1-red: #e10600;
-    --correct: #2ecc71;
-    --near: #f1c40f;
-    --wrong: #34495e;
     --bg: #111;
     --tile-bg: #1e1e1e;
 }
@@ -14,57 +11,56 @@ body {
     display: flex;
     flex-direction: column;
     align-items: center;
-    padding: 10px; /* Mniejszy padding na boki dla telefonów */
+    padding: 10px;
     margin: 0;
 }
 
-.game-container { 
-    width: 100%; 
-    max-width: 500px; 
-    text-align: center; 
+.game-container {
+    width: 100%;
+    max-width: 500px;
+    text-align: center;
     box-sizing: border-box;
 }
 
-h1 { 
-    border-left: 5px solid var(--f1-red); 
-    padding-left: 15px; 
-    text-transform: uppercase; 
-    font-size: 1.5rem; /* Elastyczna wielkość czcionki */
+h1 {
+    border-left: 5px solid var(--f1-red);
+    padding-left: 15px;
+    text-transform: uppercase;
+    font-size: 1.5rem;
 }
 
-.input-area { 
-    position: relative; 
-    margin-bottom: 20px; 
-    display: flex; 
-    gap: 10px; 
+.input-area {
+    position: relative;
+    margin-bottom: 20px;
+    display: flex;
+    gap: 10px;
 }
 
-#driverInput { 
-    flex: 1; 
-    padding: 12px; 
-    border-radius: 5px; 
-    border: 2px solid #333; 
-    background: #222; 
-    color: white; 
-    font-size: 16px; /* Zapobiega auto-zoomowi na iPhone */
+#driverInput {
+    flex: 1;
+    padding: 12px;
+    border-radius: 5px;
+    border: 2px solid #333;
+    background: #222;
+    color: white;
+    font-size: 16px;
 }
 
-button { 
-    background: var(--f1-red); 
-    color: white; 
-    border: none; 
-    padding: 0 15px; 
-    border-radius: 5px; 
-    font-weight: bold; 
-    cursor: pointer; 
+button {
+    background: var(--f1-red);
+    color: white;
+    border: none;
+    padding: 0 15px;
+    border-radius: 5px;
+    font-weight: bold;
+    cursor: pointer;
 }
 
-/* LISTA PODPOWIEDZI - ZOPTYMALIZOWANA */
 .suggestions-list {
     position: absolute;
-    top: 50px; 
-    left: 0; 
-    right: 0; /* Zajmuje całą szerokość inputa i buttona */
+    top: 50px;
+    left: 0;
+    right: 0;
     background: #222;
     border: 1px solid #444;
     border-radius: 5px;
@@ -75,49 +71,49 @@ button {
     box-shadow: 0 5px 15px rgba(0,0,0,0.5);
 }
 
-.suggestion-item { 
-    padding: 12px; 
-    border-bottom: 1px solid #333; 
-    cursor: pointer; 
-    text-align: left; 
+.suggestion-item {
+    padding: 12px;
+    border-bottom: 1px solid #333;
+    cursor: pointer;
+    text-align: left;
 }
 
 .suggestion-item:hover { background: var(--f1-red); }
 
-/* KAFELKI - RESPONSYWNE */
-.row { 
-    display: grid; 
-    grid-template-columns: repeat(5, 1fr); 
-    gap: 5px; 
-    margin-bottom: 10px; 
+/* --- SIATKA KAFELKÓW (ZMIENIONA NA 6 KOLUMN) --- */
+.row {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 4px;
+    margin-bottom: 10px;
 }
 
 .tile {
-    height: 70px; 
-    background: var(--tile-bg); 
-    border: 2px solid #333; 
+    height: 70px;
+    background: var(--tile-bg);
+    border: 2px solid #333;
     border-radius: 8px;
-    display: flex; 
-    flex-direction: column; 
-    align-items: center; 
+    display: flex;
+    flex-direction: column;
+    align-items: center;
     justify-content: center;
-    font-weight: bold; 
+    font-weight: bold;
     text-transform: uppercase;
     transition: transform 0.3s;
 }
 
-/* KOLORY */
-.correct { background-color: var(--correct) !important; border-color: transparent !important; }
-.near { background-color: var(--near) !important; color: black !important; border-color: transparent !important; }
-.wrong { background-color: var(--wrong) !important; border-color: transparent !important; }
+/* --- TWOJE NOWE KOLORY --- */
+.correct { background-color: #2ecc71 !important; color: white !important; border-color: transparent !important; }
+.wrong { background-color: #34495e !important; color: white !important; border-color: transparent !important; }
+.lower-or-past { background-color: #f1c40f !important; color: black !important; border-color: transparent !important; }
+.higher { background-color: #9b59b6 !important; color: white !important; border-color: transparent !important; }
 
 .label { font-size: 8px; opacity: 0.7; margin-bottom: 2px; }
-.value { font-size: 12px; line-height: 1.1; }
+.value { font-size: 12px; line-height: 1.1; text-align: center; }
 
-/* Dostosowanie dla bardzo wąskich telefonów */
 @media (max-width: 380px) {
     .tile { height: 60px; }
-    .value { font-size: 10px; }
+    .value { font-size: 9px; }
     .label { font-size: 7px; }
     h1 { font-size: 1.2rem; }
 }
