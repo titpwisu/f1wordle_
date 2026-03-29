@@ -78,25 +78,30 @@ button {
     text-align: left;
 }
 
-.suggestion-item:hover { 
-    background: var(--f1-red); 
+.suggestion-item:hover {
+    background: var(--f1-red);
 }
 
-/* Podświetlenie kierowcy przy sterowaniu strzałkami */
 .suggestion-active {
     background-color: var(--f1-red);
     color: white;
 }
 
-/* --- SIATKA: 6 KATEGORII --- */
+/* --- PLANSZA (ROŚNIE W GÓRĘ) --- */
+#board {
+    display: flex;
+    flex-direction: column-reverse; /* Nowe rzędy będą wpadać na górę */
+    gap: 10px;
+    width: 100%;
+    margin-top: 20px;
+}
+
 .row {
     display: grid;
     grid-template-columns: repeat(6, 1fr);
     gap: 4px;
-    margin-bottom: 10px;
 }
 
-/* --- WYGLĄD NAGŁÓWKA --- */
 .board-header {
     margin-bottom: 5px;
     font-size: 10px;
@@ -105,7 +110,6 @@ button {
     text-align: center;
 }
 
-/* --- WYGLĄD KAFELKÓW --- */
 .tile {
     height: 70px;
     background: var(--tile-bg);
@@ -117,17 +121,16 @@ button {
     justify-content: center;
     font-weight: bold;
     text-transform: uppercase;
-    font-size: 14px; /* Powiększony tekst po wyrzuceniu etykiet */
+    font-size: 14px;
     transition: transform 0.3s;
 }
 
 /* --- LOGIKA KOLORÓW --- */
-.correct { background-color: #2ecc71 !important; color: white !important; border-color: transparent !important; } /* ZIELONY = IDEALNIE */
-.near { background-color: #f1c40f !important; color: black !important; border-color: transparent !important; }    /* ŻÓŁTY = MNIEJ / BYŁY ZESPÓŁ */
-.higher { background-color: #9b59b6 !important; color: white !important; border-color: transparent !important; }  /* FIOLETOWY = WIĘCEJ */
-.wrong { background-color: #34495e !important; color: white !important; border-color: transparent !important; }   /* SZARY = ŹLE */
+.correct { background-color: #2ecc71 !important; color: white !important; border-color: transparent !important; }
+.near { background-color: #f1c40f !important; color: black !important; border-color: transparent !important; }
+.higher { background-color: #9b59b6 !important; color: white !important; border-color: transparent !important; }
+.wrong { background-color: #34495e !important; color: white !important; border-color: transparent !important; }
 
-/* Dla małych telefonów */
 @media (max-width: 380px) {
     .tile { height: 60px; font-size: 11px; }
     h1 { font-size: 1.2rem; }
