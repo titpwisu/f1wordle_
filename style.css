@@ -117,3 +117,19 @@ button {
     .label { font-size: 7px; }
     h1 { font-size: 1.2rem; }
 }
+.suggestion-item {
+    padding: 12px;
+    border-bottom: 1px solid #333;
+    cursor: pointer;
+    text-align: left;
+}
+
+.suggestion-item:hover {
+    background: var(--f1-red);
+}
+
+/* NOWE: To podświetli kierowcę, gdy zjedziesz na niego strzałką */
+.suggestion-active {
+    background-color: var(--f1-red);
+    color: white;
+}
