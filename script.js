@@ -110,4 +110,66 @@ function makeGuess() {
     } else if (guessesCount >= MAX_GUESSES) {
         setTimeout(() => {
             alert(`KONIEC GRY! 😢\nWykorzystałeś ${MAX_GUESSES} prób.\nDzisiejszy kierowca to: ${targetDriver.name}`);
-            zablokujGre("PRZEGRANA
+            zablokujGre("PRZEGRANA :(");
+        }, 500);
+    } else {
+        // Zaktualizuj tekst w polu, jeśli gramy dalej
+        aktualizujPlaceholder();
+    }
+
+    input.value = '';
+    document.getElementById('suggestions').style.display = 'none';
+}
+
+// POMOCNICZA FUNKCJA BLOKUJĄCA GRĘ
+function zablokujGre(wiadomosc) {
+    const input = document.getElementById('driverInput');
+    input.disabled = true;
+    input.placeholder = wiadomosc;
+    document.querySelector('button').disabled = true;
+}
+
+// POMOCNICZA FUNKCJA DO LICZB
+function compareNumbers(guessValue, targetValue) {
+    if (guessValue === targetValue) return 'correct';
+    if (guessValue < targetValue) return 'lower-or-past'; // Mniej = Żółty
+    return 'higher'; // Więcej = Fioletowy
+}
+
+// 5. WYŚWIETLANIE 6 KAFELKÓW
+function renderRow(guess) {
+    const board = document.getElementById('board');
+    const row = document.createElement('div');
+    row.className = 'row';
+
+    const codeStatus = (guess.code === targetDriver.code) ? 'correct' : 'wrong';
+    const natStatus = (guess.nationality === targetDriver.nationality) ? 'correct' : 'wrong';
+    
+    let teamStatus = 'wrong';
+    if (guess.team === targetDriver.team) {
+        teamStatus = 'correct';
+    } else if (targetDriver.past_teams && targetDriver.past_teams.includes(guess.team)) {
+        teamStatus = 'lower-or-past'; 
+    }
+
+    const numStatus = compareNumbers(guess.number, targetDriver.number);
+    const debStatus = compareNumbers(guess.debut, targetDriver.debut);
+    const winsStatus = compareNumbers(guess.wins, targetDriver.wins);
+
+    function createTile(label, value, status, delay) {
+        const tile = document.createElement('div');
+        tile.className = `tile ${status}`;
+        tile.style.animationDelay = delay + 's';
+        tile.innerHTML = `<div class="label">${label}</div><div class="value">${value}</div>`;
+        return tile;
+    }
+
+    row.appendChild(createTile('KOD', guess.code, codeStatus, 0));
+    row.appendChild(createTile('NAT', guess.nationality, natStatus, 0.1));
+    row.appendChild(createTile('TEAM', guess.team, teamStatus, 0.2));
+    row.appendChild(createTile('NUM', guess.number, numStatus, 0.3));
+    row.appendChild(createTile('ROK', guess.debut, debStatus, 0.4));
+    row.appendChild(createTile('WINS', guess.wins, winsStatus, 0.5));
+
+    board.prepend(row);
+}
